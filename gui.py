@@ -35,8 +35,8 @@ class GUI(CT.CTk):
   def setup_window(self) -> None:
     self.title("KalkulatorGUI")
 
-    self.geometry("300x300")
-    self.minsize(300, 300)
+    self.geometry("300x400")
+    self.minsize(300, 400)
     
     self.current_theme = THEME["dark_theme"]
     self.configure(bg=self.current_theme["bg"])
@@ -44,15 +44,11 @@ class GUI(CT.CTk):
   def create_frame(self) -> None:
     self.display_frame: CT.CTkFrame = CT.CTkFrame(
       master=self,
-      width=300,
-      height=50,
       fg_color=self.current_theme["bg"],
       border_color=self.current_theme["fg"]
     )
     self.btn_frame: CT.CTkFrame = CT.CTkFrame(
       master=self,
-      width=300,
-      height=250,
       fg_color=self.current_theme["bg"],
       border_color=self.current_theme["fg"]
     )
@@ -71,9 +67,9 @@ class GUI(CT.CTk):
 
   def create_display(self, expression: str) -> None:
     self.display: CT.CTkLabel = CT.CTkLabel(
-      text=expression,
       master=self.display_frame,
-      width=300,
+      text=expression,
+      anchor="e",
       font=("Arial", 20),
       justify="right",
       text_color=self.current_theme["font_color"]
@@ -83,17 +79,20 @@ class GUI(CT.CTk):
     self.btn_texts: tuple[tuple[str, ...], ...] = (
       ("7", "8", "9", "/", "del"),
       ("4", "5", "6", "*", "C"),
-      ("1", "2", "3", "-"),
-      ("0", ".", "=", "+")
+      ("1", "2", "3", "-", "="),
+      ("0", ".", "", "+", "")
     )
     
-    for row in self.btn_texts:
-      for btn_text in row:
-        if btn_text in {"+", "-", "*", "/", "="}:
-          bg_color = self.current_theme["operator_button_bg"]
+    for r, row in enumerate(self.btn_texts):
+      for c, btn_text in enumerate(row):
+        if btn_text == "":
+            continue
+        
+        if btn_text in {"+", "-", "*", "/", "=", "del", "C"}:
+          fg_color = self.current_theme["operator_button_bg"]
           hover_color = self.current_theme["operator_button_hover"]
         else:
-          bg_color = self.current_theme["button_bg"]
+          fg_color = self.current_theme["button_bg"]
           hover_color = self.current_theme["accent"]
 
         button: CT.CTkButton = CT.CTkButton(
@@ -102,16 +101,61 @@ class GUI(CT.CTk):
           width=50,
           height=50,
           font=("Arial", 16),
-          fg_color=bg_color,
+          fg_color=fg_color,
           text_color=self.current_theme["button_fg"],
           hover_color=hover_color,
-          command=lambda text=btn_text: self.on_button_click(text)
+          command=lambda text=btn_text: 
+            self.on_button_click(text)
         )
-        button.grid(row=self.btn_texts.index(row) + 1, column=row.index(btn_text), padx=4, pady=4)
+        button.grid(
+          row=r,
+          column=c,
+          padx=4,
+          pady=4,
+          sticky="nsew"
+        )
 
   def create_layout(self) -> None:
-    self.display_frame.grid(row=0, column=0, padx=4, pady=4, sticky="nsew")
-    self.btn_frame.grid(row=1, column=0, padx=4, pady=4, sticky="nsew")
+    # window layout
+    self.grid_rowconfigure(0, weight=5)
+    self.grid_rowconfigure(1, weight=5)
+    self.grid_columnconfigure(0, weight=1)
+
+    # display layout
+    self.display.grid(
+      row=0,
+      column=0, 
+      padx=4, 
+      pady=4, 
+      sticky="nsew"
+    )
+
+    # display frame layout
+    self.display_frame.grid_rowconfigure(0, weight=1)
+    self.display_frame.grid_columnconfigure(0, weight=1)
+    
+    self.display_frame.grid(
+      row=0, 
+      column=0, 
+      padx=4, 
+      pady=4, 
+      sticky="nsew"
+    )
+    
+    # button frame layout
+    for row in range(len(self.btn_texts)):
+      self.btn_frame.grid_rowconfigure(row, weight=1)
+
+    for column in range(len(self.btn_texts[0])):
+      self.btn_frame.grid_columnconfigure(column, weight=1)
+
+    self.btn_frame.grid(
+      row=1, 
+      column=0, 
+      padx=4, 
+      pady=4, 
+      sticky="nsew"
+    )
 
   def bind_events(self) -> None:
     pass
