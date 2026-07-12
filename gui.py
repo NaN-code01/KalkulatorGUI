@@ -11,6 +11,7 @@ THEME: dict[str, dict[str, str]] = {
     "operator_button_hover": "#464646",
     "accent": "#007acc",
     "font_color": "#ffffff",
+    "error_color": "#ff0000"
   },
   "light_theme": {
     "bg": "#ffffff",
@@ -21,6 +22,7 @@ THEME: dict[str, dict[str, str]] = {
     "operator_button_hover": "#cccccc",
     "accent": "#007acc",
     "font_color": "#000000",
+    "error_color": "#ff0000"
   }
 }
 
@@ -54,9 +56,10 @@ class GUI(CT.CTk):
     )
 
   def create_variables(self) -> None:
-    self.expression: str = "(placeholder)"
+    self.expression: str = ""
     self.result: str = ""
     self.error_message: str = ""
+    self.last_expression: str = ""
     self.last_operation: str = ""
 
   def create_widgets(self) -> None:
@@ -77,7 +80,7 @@ class GUI(CT.CTk):
 
   def create_buttons(self) -> None:
     self.btn_texts: tuple[tuple[str, ...], ...] = (
-      ("7", "8", "9", "/", "del"),
+      ("7", "8", "9", "/", "DEL"),
       ("4", "5", "6", "*", "C"),
       ("1", "2", "3", "-", "="),
       ("0", ".", "", "+", "")
@@ -88,7 +91,7 @@ class GUI(CT.CTk):
         if btn_text == "":
             continue
         
-        if btn_text in {"+", "-", "*", "/", "=", "del", "C"}:
+        if btn_text in {"+", "-", "*", "/", "=", "DEL", "C"}:
           fg_color = self.current_theme["operator_button_bg"]
           hover_color = self.current_theme["operator_button_hover"]
         else:
@@ -158,26 +161,100 @@ class GUI(CT.CTk):
     )
 
   def bind_events(self) -> None:
-    pass
+    self.bind(
+      "<Return>", 
+      lambda event: 
+        self.on_button_click("=")
+    )
+    self.bind(
+      "<Escape>", 
+      lambda event: 
+        self.on_button_click("C")
+    )
+    self.bind(
+      "<BackSpace>", 
+      lambda event: 
+        self.on_button_click("DEL")
+    )
 
+    for key in "0123456789":
+      self.bind(
+        key, 
+        lambda event, k=key: 
+          self.on_button_click(k)
+      )
+    
+    for key in "+-*/":
+      self.bind(
+        key, 
+        lambda event, k=key: 
+          self.on_button_click(k)
+      )
   
   def on_button_click(self, btn_text: str) -> None:
-    pass
+    if btn_text == "=":
+      self.calculate()
+    
+    if btn_text == "C":
+      self.clear()
+    
+    if btn_text == "DEL":
+      self.delete_last_character()
+    
+    if btn_text in "0123456789":
+      self.input_number(btn_text)
+    
+    if btn_text in "+-*/":
+      self.input_operator(btn_text)
 
   def calculate(self) -> None:
-    pass
+    self.update_display("result")
 
   def clear(self) -> None:
-    pass
+    self.expression = ""
+    self.result = ""
+    self.update_display("expression")
 
   def delete_last_character(self) -> None:
-    pass
-
-  def update_display(self, text: str) -> None:
-    pass
+    if self.expression:
+      self.expression = self.expression[:-1]
+    self.update_display("expression")
+  
+  def input_number(self, value: str) -> None:
+    self.expression += value
+    self.last_expression = value
+    self.update_display("expression")
+  
+  def input_operator(self, operator: str) -> None:
+    if self.last_expression in "0123456789":
+      self.expression += operator
+      self.last_expression = operator
+      self.last_operation = operator
+      self.update_display("expression")
 
   def show_error(self, message: str) -> None:
-    pass
+    self.error_message = message
+    self.update_display("error")
+    self.after(2000, self.clear)
+  
+  def update_display(self, usage: str) -> None:
+    if usage == "error":
+      self.display.configure(
+        text=self.error_message, 
+        text_color=self.current_theme["error_color"]
+      )
+
+    if usage == "result":
+      self.display.configure(
+        text=self.result, 
+        text_color=self.current_theme["font_color"]
+      )
+    
+    if usage == "expression":
+      self.display.configure(
+        text=self.expression, 
+        text_color=self.current_theme["font_color"]
+      )
 
 
 def main() -> None:
