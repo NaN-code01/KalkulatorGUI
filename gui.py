@@ -1,6 +1,8 @@
 import customtkinter as CT
 import os
 
+# Centralized theme configuration.
+# Each theme defines the color palette used throughout the application.
 THEME: dict[str, dict[str, str]] = {
   "dark_theme": {
     "bg": "#1e1e1e",
@@ -27,6 +29,16 @@ THEME: dict[str, dict[str, str]] = {
 }
 
 class GUI(CT.CTk):
+  """
+  Main application window for the calculator GUI.
+
+  Responsible for:
+  - Initializing the application.
+  - Creating and arranging widgets.
+  - Handling user interactions.
+  - Managing the current UI state.
+  """
+
   def __init__(self) -> None:
     super().__init__()
     self.setup_window()
@@ -35,6 +47,13 @@ class GUI(CT.CTk):
     self.create_widgets()
 
   def setup_window(self) -> None:
+    """
+    Configure the main application window.
+
+    Sets the window title, default size, minimum size,
+    and applies the initial theme.
+    """
+
     self.title("KalkulatorGUI")
 
     self.geometry("300x400")
@@ -44,11 +63,20 @@ class GUI(CT.CTk):
     self.configure(bg=self.current_theme["bg"])
 
   def create_frame(self) -> None:
+    """
+    Create the primary container frames.
+
+    The interface is divided into:
+    - display_frame: contains the calculator display.
+    - btn_frame: contains all calculator buttons.
+    """
+
     self.display_frame: CT.CTkFrame = CT.CTkFrame(
       master=self,
       fg_color=self.current_theme["bg"],
       border_color=self.current_theme["fg"]
     )
+
     self.btn_frame: CT.CTkFrame = CT.CTkFrame(
       master=self,
       fg_color=self.current_theme["bg"],
@@ -56,6 +84,14 @@ class GUI(CT.CTk):
     )
 
   def create_variables(self) -> None:
+    """
+    Initialize the application's runtime state.
+
+    These variables store the current expression,
+    calculation result, error message, and previous input
+    required for input validation.
+    """
+
     self.expression: str = ""
     self.result: str = ""
     self.error_message: str = ""
@@ -63,12 +99,26 @@ class GUI(CT.CTk):
     self.last_operation: str = ""
 
   def create_widgets(self) -> None:
+    """
+    Create and initialize all visual components.
+
+    This method serves as the main entry point for
+    widget creation, layout configuration, and event binding.
+    """
+    
     self.create_display(self.expression)
     self.create_buttons()
     self.create_layout()
     self.bind_events()
 
   def create_display(self, expression: str) -> None:
+    """
+    Create the calculator display label.
+
+    Parameters:
+      expression: Initial text displayed on the screen.
+    """
+    
     self.display: CT.CTkLabel = CT.CTkLabel(
       master=self.display_frame,
       text=expression,
@@ -79,6 +129,16 @@ class GUI(CT.CTk):
     )
 
   def create_buttons(self) -> None:
+    """
+    Create all calculator buttons dynamically.
+
+    Button appearance is determined by its function:
+    - Number buttons use the standard button theme.
+    - Operators and control buttons use the accent theme.
+
+    Each button is bound to the common click handler.
+    """
+
     self.btn_texts: tuple[tuple[str, ...], ...] = (
       ("7", "8", "9", "/", "DEL"),
       ("4", "5", "6", "*", "C"),
@@ -110,6 +170,7 @@ class GUI(CT.CTk):
           command=lambda text=btn_text: 
             self.on_button_click(text)
         )
+
         button.grid(
           row=r,
           column=c,
@@ -119,6 +180,13 @@ class GUI(CT.CTk):
         )
 
   def create_layout(self) -> None:
+    """
+    Arrange all widgets using the grid geometry manager.
+
+    Configures row and column weights to provide
+    a responsive interface that scales with the window size.
+    """
+
     # window layout
     self.grid_rowconfigure(0, weight=5)
     self.grid_rowconfigure(1, weight=5)
@@ -161,6 +229,17 @@ class GUI(CT.CTk):
     )
 
   def bind_events(self) -> None:
+    """
+    Register keyboard shortcuts.
+
+    Supported shortcuts include:
+    - Enter      -> Evaluate expression
+    - Escape     -> Clear expression
+    - Backspace  -> Delete last character
+    - Numeric keys
+    - Arithmetic operators
+    """
+
     self.bind(
       "<Return>", 
       lambda event: 
@@ -192,6 +271,16 @@ class GUI(CT.CTk):
       )
   
   def on_button_click(self, btn_text: str) -> None:
+    """
+    Handle all calculator button interactions.
+
+    Dispatches the pressed button to the corresponding
+    operation handler based on its value.
+
+    Parameters:
+        btn_text: Text displayed on the pressed button.
+    """
+
     if btn_text == "=":
       self.calculate()
     
@@ -208,24 +297,66 @@ class GUI(CT.CTk):
       self.input_operator(btn_text)
 
   def calculate(self) -> None:
+    """
+    Evaluate the current mathematical expression.
+
+    Displays an error message if the expression
+    contains an invalid operation; otherwise,
+    updates the display with the calculated result.
+    """
+
     self.update_display("result")
 
   def clear(self) -> None:
+    """
+    Reset the calculator state.
+
+    Clears the current expression, stored result,
+    and refreshes the display.
+    """
+    
     self.expression = ""
     self.result = ""
     self.update_display("expression")
 
   def delete_last_character(self) -> None:
+    """
+    Remove the last character from the current expression.
+
+    Also updates the cached last entered character,
+    which is used for input validation.
+    """
+    
     if self.expression:
       self.expression = self.expression[:-1]
+      self.last_expression = (
+        self.expression[-1] if self.expression else ""
+      )
     self.update_display("expression")
   
   def input_number(self, value: str) -> None:
+    """
+    Append a numeric character to the current expression.
+
+    Parameters:
+        value: Numeric character entered by the user.
+    """
+    
     self.expression += value
     self.last_expression = value
     self.update_display("expression")
   
   def input_operator(self, operator: str) -> None:
+    """
+    Append an arithmetic operator to the expression.
+
+    An operator is accepted only if the previous input
+    is a numeric character.
+
+    Parameters:
+        operator: Arithmetic operator entered by the user.
+    """
+    
     if self.last_expression in "0123456789":
       self.expression += operator
       self.last_expression = operator
@@ -233,11 +364,32 @@ class GUI(CT.CTk):
       self.update_display("expression")
 
   def show_error(self, message: str) -> None:
+    """
+    Display an error message temporarily.
+
+    After a short delay, the calculator state is cleared.
+
+    Parameters:
+        message: Error message to display.
+    """
+    
     self.error_message = message
     self.update_display("error")
     self.after(2000, self.clear)
   
   def update_display(self, usage: str) -> None:
+    """
+    Refresh the calculator display.
+
+    The displayed content depends on the specified mode:
+    - "expression": Current input expression.
+    - "result": Calculation result.
+    - "error": Error message.
+
+    Parameters:
+        usage: Determines which content is shown.
+    """
+    
     if usage == "error":
       self.display.configure(
         text=self.error_message, 
@@ -255,7 +407,6 @@ class GUI(CT.CTk):
         text=self.expression, 
         text_color=self.current_theme["font_color"]
       )
-
 
 def main() -> None:
   app = GUI()
