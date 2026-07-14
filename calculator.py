@@ -19,7 +19,14 @@ class Calculator:
     }
   
   def tokenize(self, expression: str) -> list[str]:
-    token_pattern = re.compile(r"\d+ (?:\.\d+)? | [+\-*/^()]")
+    token_pattern = re.compile(
+      r"""
+      \d+(?:\.\d+)?   # number
+      |               # or
+      [+\-*/^()]      # operator or parenthesis
+      """,
+      re.VERBOSE
+    )
     return token_pattern.findall(expression)
 
   def infix_to_postfix(self, tokens: list[str]) -> list[str]:
