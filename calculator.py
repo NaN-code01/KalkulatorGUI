@@ -1,6 +1,7 @@
 import re
 import math
 from typing import TypedDict
+from validator import Validator
 
 class OperatorInfo(TypedDict):
   prec: int
@@ -8,19 +9,17 @@ class OperatorInfo(TypedDict):
 
 class Calculator:
   def __init__(self) -> None:
-    self.allowed_chars: set[str] = set("0123456789()+-*/.")
-    
     # Define operator precedence and associativity: "L" for Left, "R" for Right
-    self.operators: dict[str, OperatorInfo] = {
+    self.OPERATORS: dict[str, OperatorInfo] = {
       "+": {"prec": 1, "assoc": "L"},
       "-": {"prec": 1, "assoc": "L"},
       "*": {"prec": 2, "assoc": "L"},
       "/": {"prec": 2, "assoc": "L"},
       "^": {"prec": 3, "assoc": "R"}
     }
-  
-  def tokenize(self, expression: str) -> list[str]:
-    token_pattern = re.compile(
+
+    # Define token pattern for regex
+    self.TOKEN_PATTERN = re.compile(
       r"""
       \d+(?:\.\d+)?   # number
       |               # or
@@ -28,10 +27,15 @@ class Calculator:
       """,
       re.VERBOSE
     )
-    return token_pattern.findall(expression)
+  
+  def tokenize(self, expression: str) -> list[str]:
+    if not Validator.validate_chars(chars=expression):
+      raise ValueError("Expression contains invalid characters")
+
+    return self.TOKEN_PATTERN.findall(expression)
 
   def infix_to_postfix(self, tokens: list[str]) -> list[str]:
-    operators: dict = self.operators
+    operators: dict = self.OPERATORS
     output_queue: list[str] = []
     operator_stack: list[str] = []
 
