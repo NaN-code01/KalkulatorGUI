@@ -100,11 +100,12 @@ class Calculator:
     
     result: float = stack.pop()
 
-    # return str formated int if the float value is int
-    if result.is_integer():
-      return str(int(result))
+    # return str formated int if the float value is close to rounded int
+    if math.isclose(result, round(result)):
+      return str(int(round(result)))
     
-    return str(result)
+    # return str formated float with up to 9 significant digits
+    return f"{result:.9g}"
 
 def main() -> None:
   pass
