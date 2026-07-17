@@ -28,9 +28,9 @@ class Calculator:
       re.VERBOSE
     )
   
-  def tokenize(self, expression: str) -> list[str]:
-    if not Validator.validate_chars(chars=expression):
-      raise ValueError("Expression contains invalid characters")
+  def tokenize(self, expression: str) -> list[str] | None:
+    if not Validator.validate_expression(expression=expression):
+      return
 
     return self.TOKEN_PATTERN.findall(expression)
 
