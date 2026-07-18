@@ -8,34 +8,38 @@ class OperatorInfo(TypedDict):
   assoc: str
 
 class Calculator:
-  def __init__(self) -> None:
-    # Define operator precedence and associativity: "L" for Left, "R" for Right
-    self.OPERATORS: dict[str, OperatorInfo] = {
-      "+": {"prec": 1, "assoc": "L"},
-      "-": {"prec": 1, "assoc": "L"},
-      "*": {"prec": 2, "assoc": "L"},
-      "/": {"prec": 2, "assoc": "L"},
-      "^": {"prec": 3, "assoc": "R"}
-    }
+  # Define operator precedence and associativity: "L" for Left, "R" for Right
+  OPERATORS: dict[str, OperatorInfo] = {
+    "+": {"prec": 1, "assoc": "L"},
+    "-": {"prec": 1, "assoc": "L"},
+    "*": {"prec": 2, "assoc": "L"},
+    "/": {"prec": 2, "assoc": "L"},
+    "^": {"prec": 3, "assoc": "R"}
+  }
 
-    # Define token pattern for regex
-    self.TOKEN_PATTERN = re.compile(
-      r"""
-      \d+(?:\.\d+)?   # number
-      |               # or
-      [+\-*/^()]      # operator or parenthesis
-      """,
-      re.VERBOSE
-    )
-  
-  def tokenize(self, expression: str) -> list[str] | None:
+  # Define token pattern for regex
+  TOKEN_PATTERN = re.compile(
+    r"""
+    \d+(?:\.\d+)?   # number
+    |               # or
+    [+\-*/^()]      # operator or parenthesis
+    """,
+    re.VERBOSE
+  )
+
+  @classmethod
+  def tokenize(cls, expression: str) -> list[str] | None:
     if not Validator.validate_expression(expression=expression):
       return
 
-    return self.TOKEN_PATTERN.findall(expression)
+    return cls.TOKEN_PATTERN.findall(expression)
 
-  def infix_to_postfix(self, tokens: list[str]) -> list[str]:
-    operators: dict = self.OPERATORS
+  @classmethod
+  def infix_to_postfix(cls, tokens: list[str]) -> list[str] | None:
+    if not Validator.validate_tokens(tokens=tokens, expression=""):
+      return
+
+    operators: dict = cls.OPERATORS
     output_queue: list[str] = []
     operator_stack: list[str] = []
 
@@ -82,7 +86,8 @@ class Calculator:
     
     return output_queue
 
-  def evaluate_postfix(self, postfix: list[str]) -> str:
+  @classmethod
+  def evaluate_postfix(cls, postfix: list[str]) -> str:
     stack: list[float] = []
     
     for token in postfix:
