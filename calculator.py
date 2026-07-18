@@ -97,15 +97,7 @@ class Calculator:
       else:
         value1: float = stack.pop()
         value2: float = stack.pop()
-
-        match(token):
-          # value2 then value1 order following postfix expression
-          case "+": stack.append(value2 + value1)
-          case "-": stack.append(value2 - value1)
-          case "*": stack.append(value2 * value1)
-          case "/": stack.append(value2 / value1)
-          case "^": stack.append(value2 ** value1)
-          case _: stack.append(float(0))
+        stack.append(cls.basic_eval(value1, value2, operator=token))
     
     result: float = stack.pop()
 
@@ -115,6 +107,17 @@ class Calculator:
     
     # return str formated float with up to 9 significant digits
     return f"{result:.9g}"
+
+  @staticmethod
+  def basic_eval(value1: float, value2: float, operator: str) -> float:
+    match(operator):
+      # value2 then value1 order following postfix expression
+      case "+": return value2 + value1
+      case "-": return value2 - value1
+      case "*": return value2 * value1
+      case "/": return value2 / value1
+      case "^": return value2 ** value1
+      case _: return float(0)
 
 def main() -> None:
   pass
