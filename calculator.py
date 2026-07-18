@@ -47,8 +47,7 @@ class Calculator:
     for token in tokens:
 
       # number handling
-      # .replace() for decimal number checked by .isdigit()
-      if token.replace(".", "", 1).isdigit():
+      if cls._is_number(token):
         output_queue.append(token)
       
       # parentheses handling
@@ -91,7 +90,7 @@ class Calculator:
     stack: list[float] = []
     
     for token in postfix:
-      if token.replace(".", "", 1).isdigit():
+      if cls._is_number(token):
         stack.append(float(token))
       
       else:
@@ -118,6 +117,13 @@ class Calculator:
       case "/": return value2 / value1
       case "^": return value2 ** value1
       case _: return float(0)
+
+  # UTILITY METHOD (private) ------------------------------
+
+  @staticmethod
+  def _is_number(string: str) -> bool:
+    # .replace() for decimal number checked by .isdigit()
+    return string.replace(".", "", 1).isdigit()
 
 def main() -> None:
   pass
