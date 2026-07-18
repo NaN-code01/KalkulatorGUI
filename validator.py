@@ -12,6 +12,7 @@ class Validator:
   }
 
   # VALIDATE EXPRESSION codeblock ------------------------------
+  
   @classmethod
   def validate_expression(cls, expression: str) -> bool:
     allowed_chars: set[str] = cls.ALLOWED_CHARS
@@ -22,25 +23,26 @@ class Validator:
     return True
 
   # VALIDATE TOKENS codeblock ------------------------------
+  
   @classmethod
   def validate_tokens(cls, tokens: list[str], expression: str) -> bool:
     return (
-      cls.lexical_check(tokens, expression)
-      and cls.start_end_check(tokens)
-      and cls.parentheses_check(tokens)
-      and cls.grammar_check(tokens)
+      cls._lexical_check(tokens, expression)
+      and cls._start_end_check(tokens)
+      and cls._parentheses_check(tokens)
+      and cls._grammar_check(tokens)
     )
   
-  # -- validate_tokens() method utility ----------
+  # -- validate_tokens() method utility (private) - - - - - - - - - -
   @classmethod
-  def lexical_check(cls, tokens: list[str], expression: str) -> bool:
+  def _lexical_check(cls, tokens: list[str], expression: str) -> bool:
     if "".join(tokens) != expression:
       raise ValueError("Expression contains an invalid token")
     
     return True
 
   @classmethod
-  def start_end_check(cls, tokens: list[str]) -> bool:
+  def _start_end_check(cls, tokens: list[str]) -> bool:
     operators: set[str] = cls.OPERATORS
 
     if not tokens:
@@ -56,7 +58,7 @@ class Validator:
     return True
 
   @staticmethod
-  def parentheses_check(tokens: list[str]) -> bool:
+  def _parentheses_check(tokens: list[str]) -> bool:
     parentheses_count: int = 0
     prev_token: str = ""
     
@@ -80,25 +82,25 @@ class Validator:
     return True
 
   @classmethod
-  def grammar_check(cls, tokens: list[str]) -> bool:
+  def _grammar_check(cls, tokens: list[str]) -> bool:
     operator: set[str] = cls.OPERATORS
     valid_type: dict[str, set[str]] = cls.VALID_TYPE_NEXT
     prev_type: str = ""
 
     for token in tokens:
-      curr_type: str = cls.token_type(token, operator)
+      curr_type: str = cls._token_type(token, operator)
       
       if prev_type:
-        if not cls.compare_type(prev_type, curr_type, valid_type):
+        if not cls._compare_type(prev_type, curr_type, valid_type):
           raise ValueError("Token contains invalid order")
       
       prev_type = curr_type
     
     return True
   
-  # ---- gramar_check() method utility ----------
+  # ---- gramar_check() method utility (private) -  -  -  -  -
   @staticmethod
-  def token_type(token: str, operator: set[str]) -> str:
+  def _token_type(token: str, operator: set[str]) -> str:
     if token.replace(".", "", 1).isdigit():
       return "number"
     elif token in operator:
@@ -111,5 +113,5 @@ class Validator:
       raise ValueError("Token typing is invalid")
   
   @staticmethod
-  def compare_type(prev_type: str, curr_type: str, valid_type: dict[str, set[str]]) -> bool:
+  def _compare_type(prev_type: str, curr_type: str, valid_type: dict[str, set[str]]) -> bool:
     return True if curr_type in valid_type[prev_type] else False
