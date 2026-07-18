@@ -11,15 +11,17 @@ class Validator:
     "rparen": {"operator", "rparen"}
   }
 
+  # VALIDATE EXPRESSION codeblock ------------------------------
   @classmethod
   def validate_expression(cls, expression: str) -> bool:
     allowed_chars: set[str] = cls.ALLOWED_CHARS
 
-    if all(char in allowed_chars for char in expression):
-      return True
-    else:
+    if not all(char in allowed_chars for char in expression):
       raise ValueError("Expression contains invalid character")
+    
+    return True
 
+  # VALIDATE TOKENS codeblock ------------------------------
   @classmethod
   def validate_tokens(cls, tokens: list[str], expression: str) -> bool:
     return (
@@ -29,6 +31,7 @@ class Validator:
       and cls.grammar_check(tokens)
     )
   
+  # -- validate_tokens() method utility ----------
   @classmethod
   def lexical_check(cls, tokens: list[str], expression: str) -> bool:
     if "".join(tokens) != expression:
@@ -79,12 +82,21 @@ class Validator:
   @classmethod
   def grammar_check(cls, tokens: list[str]) -> bool:
     operator: set[str] = cls.OPERATORS
+    valid_type: dict[str, set[str]] = cls.VALID_TYPE_NEXT
     prev_type: str = ""
 
     for token in tokens:
       curr_type: str = cls.token_type(token, operator)
-
+      
+      if prev_type:
+        if not cls.compare_type(prev_type, curr_type, valid_type):
+          raise ValueError("Token contains invalid order")
+      
+      prev_type = curr_type
+    
+    return True
   
+  # ---- gramar_check() method utility ----------
   @staticmethod
   def token_type(token: str, operator: set[str]) -> str:
     if token.replace(".", "", 1).isdigit():
@@ -97,3 +109,7 @@ class Validator:
       return "rparen"
     else:
       raise ValueError("Token typing is invalid")
+  
+  @staticmethod
+  def compare_type(prev_type: str, curr_type: str, valid_type: dict[str, set[str]]) -> bool:
+    return True if curr_type in valid_type[prev_type] else False
