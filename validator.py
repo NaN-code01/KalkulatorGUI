@@ -124,3 +124,12 @@ class Validator:
       raise ZeroDivisionError("Cannot divide by zero")
     
     return True
+  
+  # VALIDATE OPERATOR codeblock ------------------------------
+
+  @classmethod
+  def validate_operator(cls, operator: str) -> bool:
+    if operator not in cls._OPERATORS:
+      raise ValueError(f"Unsupported operator: {operator}")
+    
+    return True

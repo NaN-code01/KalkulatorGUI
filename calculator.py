@@ -182,7 +182,8 @@ class Calculator:
       case "^": 
         return value2 ** value1
       case _: 
-        raise ValueError(f"Unsupported operator: {operator}")
+        Validator.validate_operator(operator=operator)
+        return float(0)
 
   # UTILITY METHOD (private) ------------------------------
 
