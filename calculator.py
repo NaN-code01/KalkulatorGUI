@@ -27,20 +27,25 @@ class Calculator:
     re.VERBOSE
   )
 
+  @classmethod
+  def calculate(cls, expression: str) -> str:
+    Validator.validate_expression(expression=expression)
+    
+    tokens: list[str] = cls._tokenize(expression)
+    Validator.validate_tokens(tokens=tokens, expression=expression)
+
+    postfix: list[str] = cls._infix_to_postfix(tokens)
+    result: str = cls._evaluate_postfix(postfix)
+    return result
+
 
   @classmethod
-  def _tokenize(cls, expression: str) -> list[str] | None:
-    if not Validator.validate_expression(expression=expression):
-      return
-
+  def _tokenize(cls, expression: str) -> list[str]:
     return cls._TOKEN_PATTERN.findall(expression)
 
 
   @classmethod
-  def _infix_to_postfix(cls, tokens: list[str]) -> list[str] | None:
-    if not Validator.validate_tokens(tokens=tokens, expression=""):
-      return
-
+  def _infix_to_postfix(cls, tokens: list[str]) -> list[str]:
     operators = cls._OPERATORS
     operator_stack: list[str] = []
     output_queue: list[str] = []
