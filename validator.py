@@ -1,4 +1,11 @@
 class Validator:
+  """Validate arithmetic expressions and token sequences.
+
+  This class performs lexical and grammatical validation before an
+  expression is evaluated. Validation is separated into multiple stages
+  to ensure expressions follow the expected syntax.
+  """
+  
   _NUMBERS: set[str] = set("0123456789")
   _OPERATORS: set[str] = set("+-*/^")
   _PARENTHESES: set[str] = set("()")
@@ -15,10 +22,27 @@ class Validator:
   
   @classmethod
   def validate_expression(cls, expression: str) -> bool:
+    """Validate the raw expression before tokenization.
+
+    Checks whether the expression contains only supported characters.
+
+    Args:
+      expression: The arithmetic expression to validate.
+
+    Returns:
+      True if the expression is valid.
+
+    Raises:
+      ValueError: If the expression contains unsupported characters.
+    """
+
     allowed_chars: set[str] = cls._ALLOWED_CHARS
 
+    if not expression:
+      raise ValueError("Expression cannot be empty")
+
     if not all(char in allowed_chars for char in expression):
-      raise ValueError("Expression contains invalid character")
+      raise ValueError("Expression contain invalid character")
     
     return True
 
@@ -26,6 +50,21 @@ class Validator:
   
   @classmethod
   def validate_tokens(cls, tokens: list[str], expression: str) -> bool:
+    """Validate a tokenized arithmetic expression.
+
+    Performs lexical, structural, parenthesis, and grammar validation.
+
+    Args:
+      tokens: The list of expression tokens.
+      expression: The original expression.
+
+    Returns:
+      True if all validation stages succeed.
+
+    Raises:
+      ValueError: If any validation stage fails.
+    """
+    
     return (
       cls._lexical_check(tokens, expression)
       and cls._start_end_check(tokens)
@@ -36,13 +75,15 @@ class Validator:
   # -- validate_tokens() method utility (private) - - - - - - - - - -
   @classmethod
   def _lexical_check(cls, tokens: list[str], expression: str) -> bool:
+    """Verify that the generated tokens exactly reconstruct the expression."""
     if "".join(tokens) != expression:
-      raise ValueError("Expression contains an invalid token")
+      raise ValueError("Expression contain an invalid token")
     
     return True
 
   @classmethod
   def _start_end_check(cls, tokens: list[str]) -> bool:
+    """Validate the first and last tokens of the expression."""
     operators: set[str] = cls._OPERATORS
 
     if not tokens:
@@ -51,14 +92,15 @@ class Validator:
     if tokens[0] in operators or tokens[-1] in operators:
       raise ValueError("Tokens cannot have an operator as a first or last token")
     elif tokens[0] == ")":
-      raise ValueError("Tokens's first token contains invalid parenthesis")
+      raise ValueError("The first token contain invalid parenthesis")
     elif tokens[-1] == "(":
-      raise ValueError("Tokens's last token contains invalid parenthesis")
+      raise ValueError("The last token contain invalid parenthesis")
     
     return True
 
   @staticmethod
   def _parentheses_check(tokens: list[str]) -> bool:
+    """Validate balanced and properly ordered parentheses."""
     parentheses_count: int = 0
     prev_token: str = ""
     
@@ -70,19 +112,20 @@ class Validator:
         parentheses_count -= 1
       
       if parentheses_count < 0:
-        raise ValueError("Tokens contains invalid parentheses")
+        raise ValueError("Tokens contain invalid parentheses")
       elif prev_token == "(" and token == ")":
-        raise ValueError("Tokens contains empty parentheses")
+        raise ValueError("Tokens contain empty parentheses")
       
       prev_token = token
     
     if parentheses_count != 0:
-      raise ValueError("Tokens contains invalid parentheses")
+      raise ValueError("Tokens contain invalid parentheses")
     
     return True
 
   @classmethod
   def _grammar_check(cls, tokens: list[str]) -> bool:
+    """Validate the grammatical order of adjacent token types."""
     operator: set[str] = cls._OPERATORS
     valid_type: dict[str, set[str]] = cls._VALID_TYPE_NEXT
     prev_type: str = ""
@@ -90,9 +133,8 @@ class Validator:
     for token in tokens:
       curr_type: str = cls._token_type(token, operator)
       
-      if prev_type:
-        if not cls._compare_type(prev_type, curr_type, valid_type):
-          raise ValueError("Token contains invalid order")
+      if prev_type and not cls._compare_type(prev_type, curr_type, valid_type):
+        raise ValueError("Invalid token order")
       
       prev_type = curr_type
     
@@ -101,6 +143,7 @@ class Validator:
   # ---- gramar_check() method utility (private) -  -  -  -  -
   @staticmethod
   def _token_type(token: str, operator: set[str]) -> str:
+    """Return the token category used during grammar validation."""
     if token.replace(".", "", 1).isdigit():
       return "number"
     elif token in operator:
@@ -114,13 +157,25 @@ class Validator:
   
   @staticmethod
   def _compare_type(prev_type: str, curr_type: str, valid_type: dict[str, set[str]]) -> bool:
-    return True if curr_type in valid_type[prev_type] else False
+    """Return whether two consecutive token types form a valid sequence."""
+    return curr_type in valid_type[prev_type]
   
   # VALIDATE DIVISION codeblock ------------------------------
 
   @staticmethod
-  def validate_division(value2: float) -> bool:
-    if value2 == 0:
+  def validate_division(divisor: float) -> bool:
+    """Validate that a divisor is not zero.
+
+    Args:
+      divisor: The divisor used in a division operation.
+
+    Returns:
+      True if the divisor is non-zero.
+
+    Raises:
+      ZeroDivisionError: If the divisor is zero.
+    """
+    if divisor == 0:
       raise ZeroDivisionError("Cannot divide by zero")
     
     return True
@@ -129,6 +184,17 @@ class Validator:
 
   @classmethod
   def validate_operator(cls, operator: str) -> bool:
+    """Validate that an operator is supported.
+
+    Args:
+      operator: The operator symbol to validate.
+
+    Returns:
+      True if the operator is supported.
+
+    Raises:
+      ValueError: If the operator is unsupported.
+    """
     if operator not in cls._OPERATORS:
       raise ValueError(f"Unsupported operator: {operator}")
     

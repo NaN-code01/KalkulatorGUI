@@ -65,10 +65,12 @@ class Calculator:
   # -- calculate() method utility (private) - - - - - - - - - -
   @classmethod
   def _tokenize(cls, expression: str) -> list[str]:
+    """Split an arithmetic expression into individual tokens."""
     return cls._TOKEN_PATTERN.findall(expression)
 
   @classmethod
   def _infix_to_postfix(cls, tokens: list[str]) -> list[str]:
+    """Convert infix tokens to postfix notation using the Shunting Yard algorithm."""
     operators = cls._OPERATORS
     operator_stack: list[str] = []
     output_queue: list[str] = []
@@ -108,6 +110,7 @@ class Calculator:
       operator_stack: list[str], 
       output_queue: list[str]
     ) -> None:
+    """Pop operators until the matching opening parenthesis is reached."""
 
     while operator_stack and operator_stack[-1] != "(":
       output_queue.append(operator_stack.pop())
@@ -122,6 +125,7 @@ class Calculator:
       operator_stack: list[str], 
       output_queue: list[str]
     ) -> None:
+    """Process an operator token according to precedence and associativity rules."""
 
     while operator_stack and operator_stack[-1] != "(":
       if not cls._should_pop(token, operator_stack[-1]):
@@ -133,6 +137,7 @@ class Calculator:
   
   @classmethod
   def _should_pop(cls, incoming: str, stack_top: str) -> bool:
+    """Determine whether the top operator should be popped before pushing another."""
     incoming_prec = cls._OPERATORS[incoming]["prec"]
     incoming_assoc = cls._OPERATORS[incoming]["assoc"]
     stack_prec = cls._OPERATORS[stack_top]["prec"]
@@ -145,6 +150,7 @@ class Calculator:
 
   @classmethod
   def _evaluate_postfix(cls, postfix: list[str]) -> str:
+    """Evaluate a postfix expression and return the formatted result."""
     stack: list[float] = []
     
     for token in postfix:
@@ -168,6 +174,7 @@ class Calculator:
   # ---- evaluate_postfix() method utility (private) -  -  -  -  -
   @staticmethod
   def _basic_eval(value1: float, value2: float, operator: str) -> float:
+    """Apply a binary arithmetic operator to two operands."""
     match operator:
       # value2 then value1 order following postfix expression
       case "+": 
@@ -177,7 +184,7 @@ class Calculator:
       case "*": 
         return value2 * value1
       case "/": 
-        Validator.validate_division(value2=value1)
+        Validator.validate_division(divisor=value1)
         return value2 / value1
       case "^": 
         return value2 ** value1
@@ -189,5 +196,6 @@ class Calculator:
 
   @staticmethod
   def _is_number(token: str) -> bool:
+    """Return True if the token represents a numeric value."""
     # .replace() for decimal number checked by .isdigit()
     return token.replace(".", "", 1).isdigit()
