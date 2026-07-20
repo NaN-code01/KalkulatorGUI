@@ -1,10 +1,10 @@
 class Validator:
-  NUMBERS: set[str] = set("0123456789")
-  OPERATORS: set[str] = set("+-*/^")
-  PARENTHESES: set[str] = set("()")
-  ALLOWED_CHARS: set[str] = NUMBERS | OPERATORS | PARENTHESES | set(".")
+  _NUMBERS: set[str] = set("0123456789")
+  _OPERATORS: set[str] = set("+-*/^")
+  _PARENTHESES: set[str] = set("()")
+  _ALLOWED_CHARS: set[str] = _NUMBERS | _OPERATORS | _PARENTHESES | set(".")
 
-  VALID_TYPE_NEXT: dict[str, set[str]] = {
+  _VALID_TYPE_NEXT: dict[str, set[str]] = {
     "number": {"operator", "rparen"},
     "operator": {"number", "lparen"},
     "lparen": {"number", "lparen"},
@@ -15,7 +15,7 @@ class Validator:
   
   @classmethod
   def validate_expression(cls, expression: str) -> bool:
-    allowed_chars: set[str] = cls.ALLOWED_CHARS
+    allowed_chars: set[str] = cls._ALLOWED_CHARS
 
     if not all(char in allowed_chars for char in expression):
       raise ValueError("Expression contains invalid character")
@@ -43,7 +43,7 @@ class Validator:
 
   @classmethod
   def _start_end_check(cls, tokens: list[str]) -> bool:
-    operators: set[str] = cls.OPERATORS
+    operators: set[str] = cls._OPERATORS
 
     if not tokens:
       raise ValueError("Token list is empty")
@@ -83,8 +83,8 @@ class Validator:
 
   @classmethod
   def _grammar_check(cls, tokens: list[str]) -> bool:
-    operator: set[str] = cls.OPERATORS
-    valid_type: dict[str, set[str]] = cls.VALID_TYPE_NEXT
+    operator: set[str] = cls._OPERATORS
+    valid_type: dict[str, set[str]] = cls._VALID_TYPE_NEXT
     prev_type: str = ""
 
     for token in tokens:
