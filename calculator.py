@@ -8,6 +8,12 @@ class OperatorInfo(TypedDict):
   assoc: str
 
 class Calculator:
+  """Evaluate mathematical expressions using the Shunting Yard algorithm.
+
+  Expressions are converted from infix notation to postfix notation before
+  being evaluated. Input validation is delegated to the Validator class.
+  """
+
   # Define operator precedence and associativity: "L" for Left, "R" for Right
   _OPERATORS: dict[str, OperatorInfo] = {
     "+": {"prec": 1, "assoc": "L"},
@@ -31,6 +37,22 @@ class Calculator:
 
   @classmethod
   def calculate(cls, expression: str) -> str:
+    """Evaluate an arithmetic expression.
+
+    The expression is validated, tokenized, converted to postfix notation,
+    and evaluated. The result is returned as a formatted string.
+
+    Args:
+      expression: The arithmetic expression in infix notation.
+
+    Returns:
+      The evaluated result as a formatted string.
+
+    Raises:
+      ValueError: If the expression or generated tokens are invalid.
+      ZeroDivisionError: If division by zero occurs.
+    """
+
     Validator.validate_expression(expression=expression)
     
     tokens: list[str] = cls._tokenize(expression)
@@ -148,12 +170,19 @@ class Calculator:
   def _basic_eval(value1: float, value2: float, operator: str) -> float:
     match operator:
       # value2 then value1 order following postfix expression
-      case "+": return value2 + value1
-      case "-": return value2 - value1
-      case "*": return value2 * value1
-      case "/": return value2 / value1
-      case "^": return value2 ** value1
-      case _: raise ValueError(f"Unsupported operator: {operator}")
+      case "+": 
+        return value2 + value1
+      case "-": 
+        return value2 - value1
+      case "*": 
+        return value2 * value1
+      case "/": 
+        Validator.validate_division(value2=value1)
+        return value2 / value1
+      case "^": 
+        return value2 ** value1
+      case _: 
+        raise ValueError(f"Unsupported operator: {operator}")
 
   # UTILITY METHOD (private) ------------------------------
 

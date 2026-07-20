@@ -115,3 +115,12 @@ class Validator:
   @staticmethod
   def _compare_type(prev_type: str, curr_type: str, valid_type: dict[str, set[str]]) -> bool:
     return True if curr_type in valid_type[prev_type] else False
+  
+  # VALIDATE DIVISION codeblock ------------------------------
+
+  @staticmethod
+  def validate_division(value2: float) -> bool:
+    if value2 == 0:
+      raise ZeroDivisionError("Cannot divide by zero")
+    
+    return True
