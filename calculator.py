@@ -73,7 +73,7 @@ class Calculator:
         cls._handle_operator(token, operator_stack, output_queue)
         continue
     
-    # .pop() remaining operators to outpuut
+    # .pop() remaining operators to output
     while operator_stack:
       output_queue.append(operator_stack.pop())
     
@@ -136,28 +136,28 @@ class Calculator:
     
     result: float = stack.pop()
 
-    # return str formated int if the float value is close to rounded int
+    # return formatted integer string if the float value is close to rounded int
     if math.isclose(result, round(result)):
       return str(int(round(result)))
     
-    # return str formated float with up to 9 significant digits
+    # return formatted float string with up to 9 significant digits
     return f"{result:.9g}"
 
-  # ---- evaluate_postfix() method utility -  -  -  -  -
+  # ---- evaluate_postfix() method utility (private) -  -  -  -  -
   @staticmethod
   def _basic_eval(value1: float, value2: float, operator: str) -> float:
-    match(operator):
+    match operator:
       # value2 then value1 order following postfix expression
       case "+": return value2 + value1
       case "-": return value2 - value1
       case "*": return value2 * value1
       case "/": return value2 / value1
       case "^": return value2 ** value1
-      case _: return float(0)
+      case _: raise ValueError(f"Unsupported operator: {operator}")
 
   # UTILITY METHOD (private) ------------------------------
 
   @staticmethod
-  def _is_number(string: str) -> bool:
+  def _is_number(token: str) -> bool:
     # .replace() for decimal number checked by .isdigit()
-    return string.replace(".", "", 1).isdigit()
+    return token.replace(".", "", 1).isdigit()
