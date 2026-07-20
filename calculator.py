@@ -27,6 +27,8 @@ class Calculator:
     re.VERBOSE
   )
 
+  # CALCULATE codeblock ------------------------------
+
   @classmethod
   def calculate(cls, expression: str) -> str:
     Validator.validate_expression(expression=expression)
@@ -38,11 +40,10 @@ class Calculator:
     result: str = cls._evaluate_postfix(postfix)
     return result
 
-
+  # -- calculate() method utility (private) - - - - - - - - - -
   @classmethod
   def _tokenize(cls, expression: str) -> list[str]:
     return cls._TOKEN_PATTERN.findall(expression)
-
 
   @classmethod
   def _infix_to_postfix(cls, tokens: list[str]) -> list[str]:
@@ -78,6 +79,7 @@ class Calculator:
     
     return output_queue
 
+  # ---- infix_to_postfix() method utility (private) -  -  -  -  -
   @classmethod
   def _handle_close_parenthesis(
       cls, 
@@ -117,7 +119,7 @@ class Calculator:
       (incoming_assoc == "L" and incoming_prec <= stack_prec)
       or (incoming_assoc == "R" and incoming_prec < stack_prec)
     )
-
+  # -  -  -  -  -
 
   @classmethod
   def _evaluate_postfix(cls, postfix: list[str]) -> str:
@@ -141,6 +143,7 @@ class Calculator:
     # return str formated float with up to 9 significant digits
     return f"{result:.9g}"
 
+  # ---- evaluate_postfix() method utility -  -  -  -  -
   @staticmethod
   def _basic_eval(value1: float, value2: float, operator: str) -> float:
     match(operator):
@@ -158,9 +161,3 @@ class Calculator:
   def _is_number(string: str) -> bool:
     # .replace() for decimal number checked by .isdigit()
     return string.replace(".", "", 1).isdigit()
-
-def main() -> None:
-  pass
-
-if __name__ == "__main__":
-  main()
