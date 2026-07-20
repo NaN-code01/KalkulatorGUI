@@ -9,7 +9,7 @@ class OperatorInfo(TypedDict):
 
 class Calculator:
   # Define operator precedence and associativity: "L" for Left, "R" for Right
-  OPERATORS: dict[str, OperatorInfo] = {
+  _OPERATORS: dict[str, OperatorInfo] = {
     "+": {"prec": 1, "assoc": "L"},
     "-": {"prec": 1, "assoc": "L"},
     "*": {"prec": 2, "assoc": "L"},
@@ -18,7 +18,7 @@ class Calculator:
   }
 
   # Define token pattern for regex
-  TOKEN_PATTERN = re.compile(
+  _TOKEN_PATTERN = re.compile(
     r"""
     \d+(?:\.\d+)?   # number
     |               # or
@@ -28,18 +28,18 @@ class Calculator:
   )
 
   @classmethod
-  def tokenize(cls, expression: str) -> list[str] | None:
+  def _tokenize(cls, expression: str) -> list[str] | None:
     if not Validator.validate_expression(expression=expression):
       return
 
-    return cls.TOKEN_PATTERN.findall(expression)
+    return cls._TOKEN_PATTERN.findall(expression)
 
   @classmethod
-  def infix_to_postfix(cls, tokens: list[str]) -> list[str] | None:
+  def _infix_to_postfix(cls, tokens: list[str]) -> list[str] | None:
     if not Validator.validate_tokens(tokens=tokens, expression=""):
       return
 
-    operators: dict = cls.OPERATORS
+    operators: dict = cls._OPERATORS
     output_queue: list[str] = []
     operator_stack: list[str] = []
 
@@ -87,9 +87,9 @@ class Calculator:
 
   @classmethod
   def _should_pop(cls, incoming: str, stack_top: str) -> bool:
-    incoming_prec = cls.OPERATORS[incoming]["prec"]
-    incoming_assoc = cls.OPERATORS[incoming]["assoc"]
-    stack_prec = cls.OPERATORS[stack_top]["prec"]
+    incoming_prec = cls._OPERATORS[incoming]["prec"]
+    incoming_assoc = cls._OPERATORS[incoming]["assoc"]
+    stack_prec = cls._OPERATORS[stack_top]["prec"]
 
     return (
       (incoming_assoc == "L" and incoming_prec <= stack_prec)
@@ -98,7 +98,7 @@ class Calculator:
     )
 
   @classmethod
-  def evaluate_postfix(cls, postfix: list[str]) -> str:
+  def _evaluate_postfix(cls, postfix: list[str]) -> str:
     stack: list[float] = []
     
     for token in postfix:
@@ -108,7 +108,7 @@ class Calculator:
       else:
         value1: float = stack.pop()
         value2: float = stack.pop()
-        stack.append(cls.basic_eval(value1, value2, operator=token))
+        stack.append(cls._basic_eval(value1, value2, operator=token))
     
     result: float = stack.pop()
 
@@ -120,7 +120,7 @@ class Calculator:
     return f"{result:.9g}"
 
   @staticmethod
-  def basic_eval(value1: float, value2: float, operator: str) -> float:
+  def _basic_eval(value1: float, value2: float, operator: str) -> float:
     match(operator):
       # value2 then value1 order following postfix expression
       case "+": return value2 + value1
