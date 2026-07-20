@@ -88,6 +88,21 @@ class Calculator:
     return output_queue
 
   @classmethod
+  def _handle_close_parenthesis(
+      cls, 
+      operator_stack: list[str], 
+      output_queue: list[str]
+    ) -> tuple[list[str], list[str]]:
+
+    while operator_stack and operator_stack[-1] != "(":
+      output_queue.append(operator_stack.pop())
+    
+    if operator_stack:
+      operator_stack.pop()
+    
+    return operator_stack, output_queue
+
+  @classmethod
   def _handle_operator(
       cls, 
       token: str, 
