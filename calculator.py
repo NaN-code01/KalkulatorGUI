@@ -27,12 +27,14 @@ class Calculator:
     re.VERBOSE
   )
 
+
   @classmethod
   def _tokenize(cls, expression: str) -> list[str] | None:
     if not Validator.validate_expression(expression=expression):
       return
 
     return cls._TOKEN_PATTERN.findall(expression)
+
 
   @classmethod
   def _infix_to_postfix(cls, tokens: list[str]) -> list[str] | None:
@@ -86,6 +88,23 @@ class Calculator:
     return output_queue
 
   @classmethod
+  def _handle_operator(
+      cls, 
+      token: str, 
+      operator_stack: list[str], 
+      output_queue: list[str]
+    ) -> tuple[list[str], list[str]]:
+
+    while operator_stack and operator_stack[-1] != "(":
+      if not cls._should_pop(token, operator_stack[-1]):
+        break
+
+      output_queue.append(operator_stack.pop())
+    
+    operator_stack.append(token)
+    return operator_stack, output_queue
+  
+  @classmethod
   def _should_pop(cls, incoming: str, stack_top: str) -> bool:
     incoming_prec = cls._OPERATORS[incoming]["prec"]
     incoming_assoc = cls._OPERATORS[incoming]["assoc"]
@@ -96,6 +115,7 @@ class Calculator:
       or
       (incoming_assoc == "R" and incoming_prec < stack_prec)
     )
+
 
   @classmethod
   def _evaluate_postfix(cls, postfix: list[str]) -> str:
