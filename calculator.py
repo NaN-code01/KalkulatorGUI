@@ -41,9 +41,9 @@ class Calculator:
     if not Validator.validate_tokens(tokens=tokens, expression=""):
       return
 
-    operators: dict = cls._OPERATORS
-    output_queue: list[str] = []
+    operators = cls._OPERATORS
     operator_stack: list[str] = []
+    output_queue: list[str] = []
 
     # Shunting Yard Algorithm
     for token in tokens:
@@ -51,35 +51,21 @@ class Calculator:
       # number handling
       if cls._is_number(token):
         output_queue.append(token)
+        continue
       
       # parentheses handling
-      elif token == "(":
+      if token == "(":
         operator_stack.append(token)
-      elif token == ")":
-        while operator_stack and operator_stack[-1] != "(":
-          output_queue.append(operator_stack.pop())
-        
-        if operator_stack:
-          operator_stack.pop()
+        continue
+      
+      if token == ")":
+        cls._handle_close_parenthesis(operator_stack, output_queue)
+        continue
       
       # operator handling
-      elif token in operators:
-        token_prec: int = operators[token]["prec"]
-        token_assoc: str = operators[token]["assoc"] 
-        
-        while operator_stack and operator_stack[-1] != "(":
-          operator_prec: int = operators[operator_stack[-1]]["prec"]
-          
-          # Apply precedence and associativity rules
-          if (
-            (token_assoc == "L" and token_prec <= operator_prec) or
-            (token_assoc == "R" and token_prec < operator_prec)
-          ):
-            output_queue.append(operator_stack.pop())
-          else:
-            break
-        
-        operator_stack.append(token)
+      if token in operators:
+        cls._handle_operator(token, operator_stack, output_queue)
+        continue
     
     # .pop() remaining operators to outpuut
     while operator_stack:
@@ -92,15 +78,13 @@ class Calculator:
       cls, 
       operator_stack: list[str], 
       output_queue: list[str]
-    ) -> tuple[list[str], list[str]]:
+    ) -> None:
 
     while operator_stack and operator_stack[-1] != "(":
       output_queue.append(operator_stack.pop())
     
     if operator_stack:
       operator_stack.pop()
-    
-    return operator_stack, output_queue
 
   @classmethod
   def _handle_operator(
@@ -108,7 +92,7 @@ class Calculator:
       token: str, 
       operator_stack: list[str], 
       output_queue: list[str]
-    ) -> tuple[list[str], list[str]]:
+    ) -> None:
 
     while operator_stack and operator_stack[-1] != "(":
       if not cls._should_pop(token, operator_stack[-1]):
@@ -117,7 +101,6 @@ class Calculator:
       output_queue.append(operator_stack.pop())
     
     operator_stack.append(token)
-    return operator_stack, output_queue
   
   @classmethod
   def _should_pop(cls, incoming: str, stack_top: str) -> bool:
@@ -127,8 +110,7 @@ class Calculator:
 
     return (
       (incoming_assoc == "L" and incoming_prec <= stack_prec)
-      or
-      (incoming_assoc == "R" and incoming_prec < stack_prec)
+      or (incoming_assoc == "R" and incoming_prec < stack_prec)
     )
 
 
