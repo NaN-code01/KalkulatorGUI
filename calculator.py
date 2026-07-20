@@ -86,6 +86,18 @@ class Calculator:
     return output_queue
 
   @classmethod
+  def _should_pop(cls, incoming: str, stack_top: str) -> bool:
+    incoming_prec = cls.OPERATORS[incoming]["prec"]
+    incoming_assoc = cls.OPERATORS[incoming]["assoc"]
+    stack_prec = cls.OPERATORS[stack_top]["prec"]
+
+    return (
+      (incoming_assoc == "L" and incoming_prec <= stack_prec)
+      or
+      (incoming_assoc == "R" and incoming_prec < stack_prec)
+    )
+
+  @classmethod
   def evaluate_postfix(cls, postfix: list[str]) -> str:
     stack: list[float] = []
     
