@@ -46,6 +46,8 @@ class GUI(CT.CTk):
     self._width: int = 300
     self._height: int = 400
 
+    self._NUMBERS: set[str] = set("0123456789")
+    self._OPERATORS: set[str] = set("+-*/")
     self._btn_texts: list[list[str]] = [
       ["7", "8", "9", "/", "DEL"],
       ["4", "5", "6", "*", "C"],
@@ -55,6 +57,7 @@ class GUI(CT.CTk):
 
     self._expression: str = ""
     self._last_expression: str = ""
+    self._last_number: str = ""
     self._last_operation: str = ""
     
     self._result: str = ""
@@ -189,14 +192,14 @@ class GUI(CT.CTk):
         self._on_button_click("DEL")
     )
 
-    for key in "0123456789":
+    for key in self._NUMBERS:
       self.bind(
         key, 
         lambda event, k=key: 
           self._on_button_click(k)
       )
     
-    for key in "+-*/":
+    for key in self._OPERATORS:
       self.bind(
         key, 
         lambda event, k=key: 
@@ -213,10 +216,10 @@ class GUI(CT.CTk):
     if btn_text == "DEL":
       self._delete_last_character()
     
-    if btn_text in "0123456789":
+    if btn_text in self._NUMBERS:
       self._input_number(btn_text)
     
-    if btn_text in "+-*/":
+    if btn_text in self._OPERATORS:
       self._input_operator(btn_text)
 
   def _calculate(self) -> None:
@@ -230,23 +233,21 @@ class GUI(CT.CTk):
   def _delete_last_character(self) -> None:    
     if self._expression:
       self._expression = self._expression[:-1]
-      self._last_expression = (self._expression[-1] if self._expression else "")
     
     self._update_display("expression")
   
   def _input_number(self, value: str) -> None:
     self._expression += value
-    self._last_expression = value
+    self._last_number = value
     self._update_display("expression")
   
   def _input_operator(self, operator: str) -> None:
-    if self._last_expression in "0123456789":
+    if self._expression[-1] in self._NUMBERS:
       self._expression += operator
-      self._last_expression = operator
       self._last_operation = operator
       self._update_display("expression")
 
-  def show_error(self, message: str) -> None:
+  def _show_error(self, message: str) -> None:
     self._error_message = message
     self._update_display("error")
     self.after(2000, self._clear)
