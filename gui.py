@@ -240,7 +240,14 @@ class GUI(CT.CTk):
     ):
       return
 
-    self._result = Calculator.calculate(expression=self._expression)
+    try:
+      self._result = Calculator.calculate(expression=self._expression)
+    except Exception as e:
+      self._show_error(str(e))
+      return
+
+    self._last_expression = self._expression
+    self._expression = self._result
     self._update_display("result")
 
   def _clear(self) -> None:
