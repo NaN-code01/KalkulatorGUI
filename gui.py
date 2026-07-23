@@ -223,6 +223,7 @@ class GUI(CT.CTk):
       self._input_operator(btn_text)
 
   def _calculate(self) -> None:
+    self._result = Calculator.calculate(expression=self._expression)
     self._update_display("result")
 
   def _clear(self) -> None:
