@@ -7,23 +7,17 @@ THEME: dict[str, dict[str, str]] = {
   "dark_theme": {
     "bg": "#1e1e1e",
     "fg": "#ffffff",
+
     "button_bg": "#2e2e2e",
-    "button_fg": "#ffffff",
-    "operator_button_bg": "#007acc",
+    "button_hover": "#464646",
+
+    "operator_button_bg": "#0088ff",
     "operator_button_hover": "#464646",
-    "accent": "#007acc",
+
+    "utility_button_bg": "#0066FF",
+    "utility_button_hover": "#464646",
+
     "font_color": "#ffffff",
-    "error_color": "#ff0000"
-  },
-  "light_theme": {
-    "bg": "#ffffff",
-    "fg": "#000000",
-    "button_bg": "#f0f0f0",
-    "button_fg": "#000000",
-    "operator_button_bg": "#007acc",
-    "operator_button_hover": "#cccccc",
-    "accent": "#007acc",
-    "font_color": "#000000",
     "error_color": "#ff0000"
   }
 }
@@ -47,12 +41,13 @@ class GUI(CT.CTk):
     self._height: int = 400
 
     self._NUMBERS: set[str] = set("0123456789")
-    self._OPERATORS: set[str] = set("+-*/")
+    self._OPERATORS: set[str] = set("+-*/^")
+    self._UTILITY: set[str] = {"=", "DEL", "C"}
     self._btn_texts: list[list[str]] = [
-      ["7", "8", "9", "/", "DEL"],
-      ["4", "5", "6", "*", "C"],
-      ["1", "2", "3", "-", "="],
-      ["0", ".", "", "+", ""]
+      ["7", "8", "9", "=", "DEL", "C"],
+      ["4", "5", "6", "-", "/",   "^"],
+      ["1", "2", "3", "+", "*",   ""],
+      ["0", ".", "(", ")", "",    ""]
     ]
 
     self._expression: str = ""
@@ -103,12 +98,15 @@ class GUI(CT.CTk):
         if btn_text == "":
             continue
         
-        if btn_text in {"+", "-", "*", "/", "=", "DEL", "C"}:
+        if btn_text in self._OPERATORS:
           fg_color = self._current_theme["operator_button_bg"]
           hover_color = self._current_theme["operator_button_hover"]
+        elif btn_text in self._UTILITY:
+          fg_color = self._current_theme["utility_button_bg"]
+          hover_color = self._current_theme["utility_button_hover"]
         else:
           fg_color = self._current_theme["button_bg"]
-          hover_color = self._current_theme["accent"]
+          hover_color = self._current_theme["button_hover"]
 
         button: CT.CTkButton = CT.CTkButton(
           text=btn_text,
@@ -117,7 +115,7 @@ class GUI(CT.CTk):
           height=50,
           font=("Arial", 16),
           fg_color=fg_color,
-          text_color=self._current_theme["button_fg"],
+          text_color=self._current_theme["font_color"],
           hover_color=hover_color,
           command=lambda text=btn_text: 
             self._on_button_click(text)
@@ -192,6 +190,13 @@ class GUI(CT.CTk):
         self._on_button_click("DEL")
     )
 
+    for key in {".", "(", ")"}:
+      self.bind(
+        key, 
+        lambda event, k=key: 
+          self._on_button_click(k)
+      )    
+
     for key in self._NUMBERS:
       self.bind(
         key, 
@@ -215,7 +220,13 @@ class GUI(CT.CTk):
     
     if btn_text == "DEL":
       self._delete_last_character()
-    
+
+    if btn_text == ".":
+      self._input_decimal()
+
+    if btn_text in {"(", "}"}:
+      self._input_parenthesis(btn_text)
+
     if btn_text in self._NUMBERS:
       self._input_number(btn_text)
     
@@ -223,6 +234,12 @@ class GUI(CT.CTk):
       self._input_operator(btn_text)
 
   def _calculate(self) -> None:
+    if (
+      not self._expression
+      or self._expression[-1] not in self._NUMBERS | {")"}
+    ):
+      return
+
     self._result = Calculator.calculate(expression=self._expression)
     self._update_display("result")
 
@@ -237,7 +254,22 @@ class GUI(CT.CTk):
     
     self._expression = self._expression[:-1]
     self._update_display("expression")
-  
+
+  def _input_decimal(self) -> None:
+    if not self._expression:
+      return
+
+    if self._expression[-1] in self._NUMBERS:
+      self._expression += "."
+      self._update_display("expression")
+
+  def _input_parenthesis(self, parenthesis: str) -> None:
+    if not self._expression and parenthesis == ")":
+      return
+
+    self._expression += parenthesis
+    self._update_display("expression")
+
   def _input_number(self, value: str) -> None:
     self._expression += value
     self._last_number = value
