@@ -145,7 +145,7 @@ class GUI(CT.CTk):
     )
 
     # display frame layout
-    self.display_frame.grid_rowconfigure(0, weight=1)
+    self.display_frame.grid_rowconfigure(0, weight=3)
     self.display_frame.grid_columnconfigure(0, weight=1)
     
     self.display_frame.grid(
@@ -224,7 +224,7 @@ class GUI(CT.CTk):
     if btn_text == ".":
       self._input_decimal()
 
-    if btn_text in {"(", "}"}:
+    if btn_text in {"(", ")"}:
       self._input_parenthesis(btn_text)
 
     if btn_text in self._NUMBERS:
