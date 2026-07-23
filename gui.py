@@ -83,14 +83,14 @@ class GUI(CT.CTk):
     )
 
   def _create_widgets(self) -> None:
-    self._create_display(self._expression)
+    self._create_display()
     self._create_buttons()
     self._create_layout()
 
-  def _create_display(self, expression: str) -> None:
+  def _create_display(self) -> None:
     self.display: CT.CTkLabel = CT.CTkLabel(
       master=self.display_frame,
-      text=expression,
+      text=self._expression,
       anchor="e",
       font=("Arial", 20),
       justify="right",
@@ -231,9 +231,10 @@ class GUI(CT.CTk):
     self._update_display("expression")
 
   def _delete_last_character(self) -> None:    
-    if self._expression:
-      self._expression = self._expression[:-1]
+    if not self._expression:
+      return
     
+    self._expression = self._expression[:-1]
     self._update_display("expression")
   
   def _input_number(self, value: str) -> None:
@@ -242,10 +243,9 @@ class GUI(CT.CTk):
     self._update_display("expression")
   
   def _input_operator(self, operator: str) -> None:
-    if self._expression[-1] in self._NUMBERS:
-      self._expression += operator
-      self._last_operation = operator
-      self._update_display("expression")
+    self._expression += operator
+    self._last_operation = operator
+    self._update_display("expression")
 
   def _show_error(self, message: str) -> None:
     self._error_message = message
@@ -253,23 +253,22 @@ class GUI(CT.CTk):
     self.after(2000, self._clear)
   
   def _update_display(self, usage: str) -> None:
-    if usage == "error":
-      self.display.configure(
-        text=self._error_message, 
-        text_color=self._current_theme["error_color"]
-      )
-
-    if usage == "result":
-      self.display.configure(
-        text=self._result, 
-        text_color=self._current_theme["font_color"]
-      )
-    
-    if usage == "expression":
-      self.display.configure(
-        text=self._expression, 
-        text_color=self._current_theme["font_color"]
-      )
+    match usage:
+      case "error":
+        self.display.configure(
+          text=self._error_message, 
+          text_color=self._current_theme["error_color"]
+        )
+      case "result":
+        self.display.configure(
+          text=self._result, 
+          text_color=self._current_theme["font_color"]
+        )
+      case "expression":
+        self.display.configure(
+          text=self._expression, 
+          text_color=self._current_theme["font_color"]
+        )
 
 def main() -> None:
   app = GUI()
