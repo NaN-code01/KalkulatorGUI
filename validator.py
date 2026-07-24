@@ -199,3 +199,25 @@ class Validator:
       raise ValueError(f"Unsupported operator: {operator}")
     
     return True
+  
+  # VALIDATE EXPRESSION LENGTH codeblock ------------------------------
+
+  @classmethod
+  def validate_expression_length(cls, expression: str, max_length: int):
+    """Validate expression length so it doesnt past beyond max length
+       when doing input.
+
+    Args:
+      expression: The expression on display.
+      max_length: The max length of the expression.
+
+    Returns:
+      True if the expression length is less than the max length.
+
+    Raises:
+      IndexError: If the expression length is more or equals to max length.
+    """
+    if len(expression) >= max_length:
+      raise IndexError(f"Expression reached maximum length: {max_length}")
+
+    return True
