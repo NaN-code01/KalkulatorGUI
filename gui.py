@@ -52,7 +52,7 @@ class GUI(CT.CTk):
       ["0", ".", "",  "+",   ""]
     ]
 
-    self._MAX_EXPRESSION_LENGTH: int = 25
+    self._MAX_EXPRESSION_LENGTH: int = 50
 
     self._expression: str = ""
     self._last_expression: str = ""
@@ -72,13 +72,11 @@ class GUI(CT.CTk):
     self.display_frame: CT.CTkFrame = CT.CTkFrame(
       master=self,
       fg_color=self._current_theme["bg"],
-      border_color=self._current_theme["fg"]
     )
 
     self.btn_frame: CT.CTkFrame = CT.CTkFrame(
       master=self,
       fg_color=self._current_theme["bg"],
-      border_color=self._current_theme["fg"]
     )
 
   def _create_widgets(self) -> None:
@@ -87,13 +85,14 @@ class GUI(CT.CTk):
     self._create_layout()
 
   def _create_display(self) -> None:
-    self.display: CT.CTkLabel = CT.CTkLabel(
+    self.display = CT.CTkEntry(
       master=self.display_frame,
-      text=self._expression,
-      anchor="e",
-      font=("Arial", 20),
+      state="readonly",
       justify="right",
-      text_color=self._current_theme["font_color"]
+      font=("Arial", 20),
+      text_color=self._current_theme["font_color"],
+      fg_color=self._current_theme["bg"],
+      border_color=self._current_theme["bg"]
     )
 
   def _create_buttons(self) -> None:
@@ -308,22 +307,33 @@ class GUI(CT.CTk):
     self.after(5000, self._clear)
   
   def _update_display(self, usage: str) -> None:
-    match usage:
-      case "error":
-        self.display.configure(
-          text=self._error_message, 
-          text_color=self._current_theme["error_color"]
-        )
-      case "result":
-        self.display.configure(
-          text=self._result, 
-          text_color=self._current_theme["font_color"]
-        )
-      case "expression":
-        self.display.configure(
-          text=self._expression, 
-          text_color=self._current_theme["font_color"]
-        )
+    self.display.configure(state="normal")
+    self.display.delete(0, "end")
+
+    if usage == "expression":
+      self.display.insert(0, self._expression)
+      self.display.icursor("end")
+      self.display.xview_moveto(1.0)
+      self.display.configure(
+        justify="right",
+        text_color=self._current_theme["font_color"]
+      )
+    elif usage == "result":
+      self.display.insert(0, self._result)
+      self.display.icursor("end")
+      self.display.xview_moveto(1.0)
+      self.display.configure(
+        justify="right",
+        text_color=self._current_theme["font_color"]
+      )
+    elif usage == "error":
+      self.display.insert(0, self._error_message)
+      self.display.configure(
+        justify="left",
+        text_color=self._current_theme["error_color"]
+      )
+
+    self.display.configure(state="readonly")
 
 def main() -> None:
   app = GUI()
