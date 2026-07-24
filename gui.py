@@ -1,4 +1,5 @@
 import customtkinter as CT
+from validator import Validator
 from calculator import Calculator
 
 # Centralized theme configuration.
@@ -50,6 +51,8 @@ class GUI(CT.CTk):
       ["1", "2", "3", "-",   ""],
       ["0", ".", "",  "+",   ""]
     ]
+
+    self._MAX_EXPRESSION_LENGTH: int = 25
 
     self._expression: str = ""
     self._last_expression: str = ""
@@ -213,6 +216,7 @@ class GUI(CT.CTk):
       )
   
   def _on_button_click(self, btn_text: str) -> None:
+    # utility button - - - - -
     if btn_text == "=":
       self._calculate()
     
@@ -221,6 +225,16 @@ class GUI(CT.CTk):
     
     if btn_text == "DEL":
       self._delete_last_character()
+
+    # input button - - - - -
+    try:
+      Validator.validate_expression_length(
+        expression=self._expression,
+        max_length=self._MAX_EXPRESSION_LENGTH
+      )
+    except Exception as e:
+      self._show_error(str(e))
+      return
 
     if btn_text == ".":
       self._input_decimal()
