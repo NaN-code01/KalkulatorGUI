@@ -44,10 +44,11 @@ class GUI(CT.CTk):
     self._OPERATORS: set[str] = set("+-*/^")
     self._UTILITY: set[str] = {"=", "DEL", "C"}
     self._btn_texts: list[list[str]] = [
-      ["7", "8", "9", "=", "DEL", "C"],
-      ["4", "5", "6", "-", "/",   "^"],
-      ["1", "2", "3", "+", "*",   ""],
-      ["0", ".", "(", ")", "",    ""]
+      ["(", ")", "=", "DEL", "C"],
+      ["7", "8", "9", "/",   "^"],
+      ["4", "5", "6", "*",   ""],
+      ["1", "2", "3", "-",   ""],
+      ["0", ".", "",  "+",   ""]
     ]
 
     self._expression: str = ""
@@ -290,7 +291,7 @@ class GUI(CT.CTk):
   def _show_error(self, message: str) -> None:
     self._error_message = message
     self._update_display("error")
-    self.after(2000, self._clear)
+    self.after(5000, self._clear)
   
   def _update_display(self, usage: str) -> None:
     match usage:
