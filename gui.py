@@ -175,6 +175,11 @@ class GUI(CT.CTk):
     )
 
   def _bind_events(self) -> None:
+    # bind mouse scroll
+    self.display.bind("<Button-4>", self._scroll_display)
+    self.display.bind("<Button-5>", self._scroll_display)
+
+    # bind utility keys
     self.bind(
       "<Return>", 
       lambda event: 
@@ -193,6 +198,7 @@ class GUI(CT.CTk):
         self._on_button_click("DEL")
     )
 
+    # bind input keys
     for key in {".", "(", ")"}:
       self.bind(
         key, 
@@ -213,7 +219,13 @@ class GUI(CT.CTk):
         lambda event, k=key: 
           self._on_button_click(k)
       )
-  
+
+  def _scroll_display(self, event) -> None:
+    if event.num == 4:
+        self.display.xview_scroll(-1, "units")
+    elif event.num == 5:
+        self.display.xview_scroll(1, "units")
+
   def _on_button_click(self, btn_text: str) -> None:
     # utility button - - - - -
     if btn_text == "=":
