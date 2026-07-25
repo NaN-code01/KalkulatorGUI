@@ -1,3 +1,5 @@
+import math
+
 class Validator:
   """Validate arithmetic expressions and token sequences.
 
@@ -160,46 +162,6 @@ class Validator:
     """Return whether two consecutive token types form a valid sequence."""
     return curr_type in valid_type[prev_type]
   
-  # VALIDATE DIVISION codeblock ------------------------------
-
-  @staticmethod
-  def validate_division(divisor: float) -> bool:
-    """Validate that a divisor is not zero.
-
-    Args:
-      divisor: The divisor used in a division operation.
-
-    Returns:
-      True if the divisor is non-zero.
-
-    Raises:
-      ZeroDivisionError: If the divisor is zero.
-    """
-    if divisor == 0:
-      raise ZeroDivisionError("Cannot divide by zero")
-    
-    return True
-  
-  # VALIDATE OPERATOR codeblock ------------------------------
-
-  @classmethod
-  def validate_operator(cls, operator: str) -> bool:
-    """Validate that an operator is supported.
-
-    Args:
-      operator: The operator symbol to validate.
-
-    Returns:
-      True if the operator is supported.
-
-    Raises:
-      ValueError: If the operator is unsupported.
-    """
-    if operator not in cls._OPERATORS:
-      raise ValueError(f"Unsupported operator: {operator}")
-    
-    return True
-  
   # VALIDATE EXPRESSION LENGTH codeblock ------------------------------
 
   @classmethod
@@ -221,3 +183,50 @@ class Validator:
       raise IndexError(f"Expression reached maximum length: {max_length}")
 
     return True
+
+  # VALIDATE EVALUATION codeblock ------------------------------
+
+  @classmethod
+  def validate_evaluation(cls, value1: float, value2: float, operator: str) -> bool:
+    try:
+      match operator:
+        # value2 then value1 order following postfix expression
+        case "+": 
+          result: float = value2 + value1
+        case "-": 
+          result: float = value2 - value1
+        case "*": 
+          result: float = value2 * value1
+        case "/": 
+          cls._check_divisor(value1)
+          result: float = value2 / value1
+        case "^": 
+          result: float = value2 ** value1
+        case _:
+          cls._check_operator(operator)
+          result: float = float(0)
+    except OverflowError:
+      raise ValueError("Numerical result out of range")
+
+    if not math.isfinite(result):
+        raise ValueError("Numerical result out of range")
+
+    return True
+
+  # -- validate_evaluation() method utility (private) - - - - - - - - - -
+  @staticmethod
+  def _check_divisor(divisor: float) -> bool:
+    """Raise ZeroDivisionError if divisor is zero"""
+    if divisor == 0:
+      raise ZeroDivisionError("Cannot divide by zero")
+    
+    return True
+  
+  @classmethod
+  def _check_operator(cls, operator: str) -> bool:
+    """Validate the operator and raise error when the operator is unsupported"""
+    if operator not in cls._OPERATORS:
+      raise ValueError(f"Unsupported operator: {operator}")
+    
+    return True
+  

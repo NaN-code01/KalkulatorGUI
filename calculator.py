@@ -175,6 +175,7 @@ class Calculator:
   @staticmethod
   def _basic_eval(value1: float, value2: float, operator: str) -> float:
     """Apply a binary arithmetic operator to two operands."""
+    Validator.validate_evaluation(value1=value1, value2=value2, operator=operator)
     match operator:
       # value2 then value1 order following postfix expression
       case "+": 
@@ -184,12 +185,10 @@ class Calculator:
       case "*": 
         return value2 * value1
       case "/": 
-        Validator.validate_division(divisor=value1)
         return value2 / value1
       case "^": 
         return value2 ** value1
       case _: 
-        Validator.validate_operator(operator=operator)
         return float(0)
 
   # UTILITY METHOD (private) ------------------------------
