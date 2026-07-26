@@ -309,6 +309,9 @@ class GUI(CT.CTk):
     self._update_display("expression")
   
   def _input_operator(self, operator: str) -> None:
+    if self._expression[-1] not in self._NUMBERS | {")"}:
+      return
+    
     self._expression += operator
     self._last_operation = operator
     self._update_display("expression")
