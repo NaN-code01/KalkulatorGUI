@@ -187,46 +187,38 @@ class Validator:
   # VALIDATE EVALUATION codeblock ------------------------------
 
   @classmethod
-  def validate_evaluation(cls, value1: float, value2: float, operator: str) -> bool:
-    try:
-      match operator:
-        # value2 then value1 order following postfix expression
-        case "+": 
-          result: float = value2 + value1
-        case "-": 
-          result: float = value2 - value1
-        case "*": 
-          result: float = value2 * value1
-        case "/": 
-          cls._check_divisor(value1)
-          result: float = value2 / value1
-        case "^": 
-          result: float = value2 ** value1
-        case _:
-          cls._check_operator(operator)
-          result: float = float(0)
-    except OverflowError:
-      raise ValueError("Numerical result out of range")
+  def validate_evaluation(cls, operator: str, divisor: float) -> bool:
+    """Validate math evaluation operator and divisor.
 
-    if not math.isfinite(result):
-        raise ValueError("Numerical result out of range")
+    Args:
+      operator: The operator of current evaluation.
+      divisor: The number that being used to divide (divide operation only).
+
+    Raises:
+      ValueError: If the operator is unsuported.
+      ZeroDivisionError: If the divisor is equal to zero (0).
+    """
+    cls._operator_check(operator)
+
+    if operator == "/":
+      cls._divisor_check(divisor)
 
     return True
 
-  # -- validate_evaluation() method utility (private) - - - - - - - - - -
-  @staticmethod
-  def _check_divisor(divisor: float) -> bool:
-    """Raise ZeroDivisionError if divisor is zero"""
-    if divisor == 0:
-      raise ZeroDivisionError("Cannot divide by zero")
-    
-    return True
-  
+  # -- validate_evaluation() method utility (private) - - - - - - - - - -  
   @classmethod
-  def _check_operator(cls, operator: str) -> bool:
+  def _operator_check(cls, operator: str) -> bool:
     """Validate the operator and raise error when the operator is unsupported"""
     if operator not in cls._OPERATORS:
       raise ValueError(f"Unsupported operator: {operator}")
+    
+    return True
+
+  @staticmethod
+  def _divisor_check(divisor: float) -> bool:
+    """Raise ZeroDivisionError if divisor is zero"""
+    if divisor == 0:
+      raise ZeroDivisionError("Cannot divide by zero")
     
     return True
   

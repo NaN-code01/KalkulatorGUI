@@ -49,7 +49,9 @@ class Calculator:
       The evaluated result as a formatted string.
 
     Raises:
-      ValueError: If the expression or generated tokens are invalid.
+      ValueError: If the expression or generated tokens are invalid,
+                  or the operator is unsuported,
+                  or the evaluation result is out of range.
       ZeroDivisionError: If division by zero occurs.
     """
 
@@ -175,21 +177,25 @@ class Calculator:
   @staticmethod
   def _basic_eval(value1: float, value2: float, operator: str) -> float:
     """Apply a binary arithmetic operator to two operands."""
-    Validator.validate_evaluation(value1=value1, value2=value2, operator=operator)
-    match operator:
-      # value2 then value1 order following postfix expression
-      case "+": 
-        return value2 + value1
-      case "-": 
-        return value2 - value1
-      case "*": 
-        return value2 * value1
-      case "/": 
-        return value2 / value1
-      case "^": 
-        return value2 ** value1
-      case _: 
-        return float(0)
+    Validator.validate_evaluation(operator=operator, divisor=value1)
+
+    try:
+      match operator:
+        # value2 then value1 order following postfix expression
+        case "+": result = value2 + value1
+        case "-": result = value2 - value1
+        case "*": result = value2 * value1
+        case "/": result = value2 / value1
+        case "^": result = value2 ** value1
+        case _: result = float(0)
+
+    except OverflowError:
+      raise ValueError(f"Numerical result out of range: {value2} {operator} {value1}")
+
+    if not math.isfinite(result):
+      raise ValueError(f"Numerical result out of range: {value2} {operator} {value1}")
+
+    return result
 
   # UTILITY METHOD (private) ------------------------------
 
