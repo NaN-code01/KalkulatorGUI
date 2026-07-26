@@ -300,6 +300,9 @@ class GUI(CT.CTk):
     if not self._expression and parenthesis == ")":
       return
 
+    if self._expression[-1] == "(":
+      return
+
     self._expression += parenthesis
     self._update_display("expression")
 
@@ -309,7 +312,7 @@ class GUI(CT.CTk):
     self._update_display("expression")
   
   def _input_operator(self, operator: str) -> None:
-    if self._expression[-1] not in self._NUMBERS | {")"}:
+    if self._expression and self._expression[-1] not in self._NUMBERS | {")"}:
       return
     
     self._expression += operator
