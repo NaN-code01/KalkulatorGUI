@@ -33,13 +33,13 @@ class GUI(CT.CTk):
     self._bind_events()
 
   def _create_variables(self) -> None:
-    self._title: str = "KalkulatorGUI"
+    self._TITLE: str = "KalkulatorGUI"
     self._current_theme = THEME["dark_theme"]
 
-    self._geometry: str = "300x400"
+    self._GEOMETRY: str = "300x400"
     # minsize
-    self._width: int = 300
-    self._height: int = 400
+    self._MIN_WIDTH: int = 300
+    self._MIN_HEIGHT: int = 400
 
     self._NUMBERS: set[str] = set("0123456789")
     self._OPERATORS: set[str] = set("+-*/^")
@@ -63,10 +63,10 @@ class GUI(CT.CTk):
     self._error_message: str = ""
 
   def _setup_window(self) -> None:
-    self.title(self._title)
+    self.title(self._TITLE)
     self.configure(bg=self._current_theme["bg"])
-    self.geometry(self._geometry)
-    self.minsize(self._width, self._height)
+    self.geometry(self._GEOMETRY)
+    self.minsize(self._MIN_WIDTH, self._MIN_HEIGHT)
 
   def _create_frames(self) -> None:
     self.display_frame: CT.CTkFrame = CT.CTkFrame(
