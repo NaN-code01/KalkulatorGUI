@@ -44,7 +44,7 @@ class GUI(CT.CTk):
     self._NUMBERS: set[str] = set("0123456789")
     self._OPERATORS: set[str] = set("+-*/^")
     self._UTILITY: set[str] = {"=", "DEL", "C"}
-    self._btn_texts: list[list[str]] = [
+    self._BTN_TEXTS: list[list[str]] = [
       ["(", ")", "=", "DEL", "C"],
       ["7", "8", "9", "/",   "^"],
       ["4", "5", "6", "*",   ""],
@@ -53,6 +53,12 @@ class GUI(CT.CTk):
     ]
 
     self._MAX_EXPRESSION_LENGTH: int = 50
+    self._NUMPAD_OPERATORS: dict[str, str] = {
+      "<KP_Add>": "+",
+      "<KP_Subtract>": "-",
+      "<KP_Multiply>": "*",
+      "<KP_Divide>": "/"
+    }
 
     self._expression: str = ""
     self._last_expression: str = ""
@@ -96,7 +102,7 @@ class GUI(CT.CTk):
     )
 
   def _create_buttons(self) -> None:
-    for r, row in enumerate(self._btn_texts):
+    for r, row in enumerate(self._BTN_TEXTS):
       for c, btn_text in enumerate(row):
         if btn_text == "":
             continue
@@ -160,10 +166,10 @@ class GUI(CT.CTk):
     )
     
     # button frame layout
-    for row in range(len(self._btn_texts)):
+    for row in range(len(self._BTN_TEXTS)):
       self.btn_frame.grid_rowconfigure(row, weight=1)
 
-    for column in range(len(self._btn_texts[0])):
+    for column in range(len(self._BTN_TEXTS[0])):
       self.btn_frame.grid_columnconfigure(column, weight=1)
 
     self.btn_frame.grid(
@@ -180,45 +186,30 @@ class GUI(CT.CTk):
     self.display.bind("<Button-5>", self._scroll_display)
 
     # bind utility keys
-    self.bind(
-      "<Return>", 
-      lambda event: 
-        self._on_button_click("=")
-    )
+    for key in {"<Return>", "<KP_Enter>", "="}:
+      self.bind(key, lambda event: self._on_button_click("="))
     
-    self.bind(
-      "<Escape>", 
-      lambda event: 
-        self._on_button_click("C")
-    )
-    
-    self.bind(
-      "<BackSpace>", 
-      lambda event: 
-        self._on_button_click("DEL")
-    )
+    self.bind("<Escape>", lambda event: self._on_button_click("C"))
+    self.bind("<BackSpace>", lambda event: self._on_button_click("DEL"))
 
     # bind input keys
-    for key in {".", "(", ")"}:
-      self.bind(
-        key, 
-        lambda event, k=key: 
-          self._on_button_click(k)
-      )    
+    for key in {"<KP_Decimal>", "."}:
+      self.bind(key, lambda event: self._on_button_click("."))
 
+    for key in {"(", ")"}:
+      self.bind(key, lambda event, k=key: self._on_button_click(k))
+
+    # number bind
     for key in self._NUMBERS:
-      self.bind(
-        key, 
-        lambda event, k=key: 
-          self._on_button_click(k)
-      )
-    
+      self.bind(key, lambda event, k=key: self._on_button_click(k))
+      self.bind(f"<KP_{key}>", lambda event, k=key: self._on_button_click(k))
+
+    # operator bind    
     for key in self._OPERATORS:
-      self.bind(
-        key, 
-        lambda event, k=key: 
-          self._on_button_click(k)
-      )
+      self.bind(key, lambda event, k=key: self._on_button_click(k))
+
+    for key, value in self._NUMPAD_OPERATORS.items():
+      self.bind(key, lambda event, v=value: self._on_button_click(v))
 
   def _scroll_display(self, event) -> None:
     if event.num == 4:
@@ -300,7 +291,11 @@ class GUI(CT.CTk):
     if not self._expression and parenthesis == ")":
       return
 
-    if self._expression[-1] == "(":
+    if (
+      self._expression
+      and self._expression[-1] == "(" 
+      and parenthesis == ")"
+    ):
       return
 
     self._expression += parenthesis
