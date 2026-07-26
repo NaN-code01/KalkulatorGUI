@@ -288,15 +288,14 @@ class GUI(CT.CTk):
       self._update_display("expression")
 
   def _input_parenthesis(self, parenthesis: str) -> None:
-    if not self._expression and parenthesis == ")":
+    if self._expression and self._expression[-1] == ".":
       return
 
-    if (
-      self._expression
-      and self._expression[-1] == "(" 
-      and parenthesis == ")"
-    ):
-      return
+    if parenthesis == ")":
+      if not self._expression:
+        return
+      elif self._expression[-1] == "(":
+        return
 
     self._expression += parenthesis
     self._update_display("expression")
