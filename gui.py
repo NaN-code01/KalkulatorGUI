@@ -1,3 +1,4 @@
+import tkinter as Tk
 import customtkinter as CT
 from validator import Validator
 from calculator import Calculator
@@ -33,6 +34,10 @@ class GUI(CT.CTk):
     self._bind_events()
 
   def _create_variables(self) -> None:
+    # icon issue, TO DO: fix the issue when packaging process
+    self._ICON_PATH: str = "assets/icon64.png"
+    self._ICON = Tk.PhotoImage(file=self._ICON_PATH)
+
     self._TITLE: str = "KalkulatorGUI"
     self._current_theme = THEME["dark_theme"]
 
@@ -69,6 +74,7 @@ class GUI(CT.CTk):
     self._error_message: str = ""
 
   def _setup_window(self) -> None:
+    self.iconphoto(True, self._ICON)
     self.title(self._TITLE)
     self.configure(bg=self._current_theme["bg"])
     self.geometry(self._GEOMETRY)
