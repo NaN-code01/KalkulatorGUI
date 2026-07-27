@@ -91,7 +91,7 @@ class GUI(CT.CTk):
     self._create_layout()
 
   def _create_display(self) -> None:
-    self.display = CT.CTkEntry(
+    self.main_display = CT.CTkEntry(
       master=self.display_frame,
       state="readonly",
       justify="right",
@@ -99,6 +99,17 @@ class GUI(CT.CTk):
       text_color=self._current_theme["font_color"],
       fg_color=self._current_theme["bg"],
       border_color=self._current_theme["bg"]
+    )
+
+    self.error_display = CT.CTkLabel(
+      master=self.display_frame,
+      text=self._error_message,
+      anchor="w",
+      justify="left",
+      wraplength=200,
+      font=("Arial", 16),
+      text_color=self._current_theme["error_color"],
+      fg_color=self._current_theme["bg"],
     )
 
   def _create_buttons(self) -> None:
@@ -145,7 +156,7 @@ class GUI(CT.CTk):
     self.grid_columnconfigure(0, weight=1)
 
     # display layout
-    self.display.grid(
+    self.main_display.grid(
       row=0,
       column=0, 
       padx=4, 
@@ -153,8 +164,17 @@ class GUI(CT.CTk):
       sticky="nsew"
     )
 
+    self.error_display.grid(
+      row=1,
+      column=0,
+      padx=8,
+      pady=(2, 4),
+      sticky="nsew"
+    )
+
     # display frame layout
-    self.display_frame.grid_rowconfigure(0, weight=3)
+    self.display_frame.grid_rowconfigure(0, weight=1)
+    self.display_frame.grid_rowconfigure(1, weight=0)
     self.display_frame.grid_columnconfigure(0, weight=1)
     
     self.display_frame.grid(
@@ -182,8 +202,8 @@ class GUI(CT.CTk):
 
   def _bind_events(self) -> None:
     # bind mouse scroll
-    self.display.bind("<Button-4>", self._scroll_display)
-    self.display.bind("<Button-5>", self._scroll_display)
+    self.main_display.bind("<Button-4>", self._scroll_display)
+    self.main_display.bind("<Button-5>", self._scroll_display)
 
     # bind utility keys
     for key in {"<Return>", "<KP_Enter>", "="}:
@@ -213,11 +233,13 @@ class GUI(CT.CTk):
 
   def _scroll_display(self, event) -> None:
     if event.num == 4:
-        self.display.xview_scroll(-1, "units")
+        self.main_display.xview_scroll(-1, "units")
     elif event.num == 5:
-        self.display.xview_scroll(1, "units")
+        self.main_display.xview_scroll(1, "units")
 
   def _on_button_click(self, btn_text: str) -> None:
+    self._clear_error()
+
     # utility button - - - - -
     if btn_text == "=":
       self._calculate()
@@ -272,6 +294,10 @@ class GUI(CT.CTk):
     self._result = ""
     self._update_display("expression")
 
+  def _clear_error(self) -> None:
+    self._error_message = ""
+    self.error_display.configure(text=self._error_message)
+
   def _delete_last_character(self) -> None:    
     if not self._expression:
       return
@@ -316,36 +342,34 @@ class GUI(CT.CTk):
   def _show_error(self, message: str) -> None:
     self._error_message = message
     self._update_display("error")
-    self.after(5000, self._clear)
   
   def _update_display(self, usage: str) -> None:
-    self.display.configure(state="normal")
-    self.display.delete(0, "end")
+    if usage == "error":
+      self.error_display.configure(text=self._error_message)
+      self.after(10000, self._clear_error)
+      return
+
+    self.main_display.configure(state="normal")
+    self.main_display.delete(0, "end")
 
     if usage == "expression":
-      self.display.insert(0, self._expression)
-      self.display.icursor("end")
-      self.display.xview_moveto(1.0)
-      self.display.configure(
+      self.main_display.insert(0, self._expression)
+      self.main_display.icursor("end")
+      self.main_display.xview_moveto(1.0)
+      self.main_display.configure(
         justify="right",
         text_color=self._current_theme["font_color"]
       )
     elif usage == "result":
-      self.display.insert(0, self._result)
-      self.display.icursor("end")
-      self.display.xview_moveto(1.0)
-      self.display.configure(
+      self.main_display.insert(0, self._result)
+      self.main_display.icursor("end")
+      self.main_display.xview_moveto(1.0)
+      self.main_display.configure(
         justify="right",
         text_color=self._current_theme["font_color"]
       )
-    elif usage == "error":
-      self.display.insert(0, self._error_message)
-      self.display.configure(
-        justify="left",
-        text_color=self._current_theme["error_color"]
-      )
 
-    self.display.configure(state="readonly")
+    self.main_display.configure(state="readonly")
 
 def main() -> None:
   app = GUI()
