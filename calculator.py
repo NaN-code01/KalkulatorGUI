@@ -60,7 +60,8 @@ class Calculator:
     tokens: list[str] = cls._tokenize(expression)
     Validator.validate_tokens(tokens=tokens, expression=expression)
 
-    postfix: list[str] = cls._infix_to_postfix(tokens)
+    tokens_with_mult: list[str] = cls._insert_implicit_multiplication(tokens)
+    postfix: list[str] = cls._infix_to_postfix(tokens_with_mult)
     result: str = cls._evaluate_postfix(postfix)
     return result
 
@@ -68,8 +69,31 @@ class Calculator:
   @classmethod
   def _tokenize(cls, expression: str) -> list[str]:
     """Split an arithmetic expression into individual tokens."""
-    return cls._TOKEN_PATTERN.findall(expression)
+    tokens: list[str] = cls._TOKEN_PATTERN.findall(expression)
+    return tokens
 
+  # ---- tokenize() method utility (private) -  -  -  -  -
+  @classmethod
+  def _insert_implicit_multiplication(cls, tokens: list[str]) -> list[str]:
+    """Insert '*' where multiplication is implied. (parenthesis multipication)"""
+    result: list[str] = []
+
+    for token in tokens:
+      if result:
+        prev = result[-1]
+
+        # when a value is followed by another value or an opening parenthesis
+        prev_is_value = cls._is_number(prev) or prev == ")"
+        curr_is_value = cls._is_number(token) or token == "("
+
+        if prev_is_value and curr_is_value:
+          result.append("*")
+
+      result.append(token)
+
+    return result
+  # -  -  -  -  -
+  
   @classmethod
   def _infix_to_postfix(cls, tokens: list[str]) -> list[str]:
     """Convert infix tokens to postfix notation using the Shunting Yard algorithm."""

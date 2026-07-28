@@ -1,5 +1,3 @@
-import math
-
 class Validator:
   """Validate arithmetic expressions and token sequences.
 
@@ -13,11 +11,12 @@ class Validator:
   _PARENTHESES: set[str] = set("()")
   _ALLOWED_CHARS: set[str] = _NUMBERS | _OPERATORS | _PARENTHESES | set(".")
 
+  # allow implicit multiplication
   _VALID_TYPE_NEXT: dict[str, set[str]] = {
-    "number": {"operator", "rparen"},
+    "number": {"operator","lparen", "rparen"},
     "operator": {"number", "lparen"},
     "lparen": {"number", "lparen"},
-    "rparen": {"operator", "rparen"}
+    "rparen": {"operator","lparen", "rparen"}
   }
 
   # VALIDATE EXPRESSION codeblock ------------------------------
