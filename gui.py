@@ -48,13 +48,14 @@ class GUI(CT.CTk):
 
     self._NUMBERS: set[str] = set("0123456789")
     self._OPERATORS: set[str] = set("+-*/^")
+    self._PARENTHESIS: set[str] = set("()")
     self._UTILITY: set[str] = {"=", "DEL", "C"}
     self._BTN_TEXTS: list[list[str]] = [
-      ["(", ")", "^", "/", "C"  ],
-      ["7", "8", "9", "*", "DEL"],
-      ["4", "5", "6", "-", "="  ],
-      ["1", "2", "3", "+", ""   ],
-      ["0", ".", "",  "",  ""   ]
+      ["C", "DEL", "",  "(", ")"],
+      ["7", "8",   "9", "/", "^"],
+      ["4", "5",   "6", "*", "="],
+      ["1", "2",   "3", "-", ""],
+      ["0", "",    ".", "+", ""]
     ]
 
     self._MAX_EXPRESSION_LENGTH: int = 50
@@ -124,7 +125,7 @@ class GUI(CT.CTk):
         if btn_text == "":
             continue
         
-        if btn_text in self._OPERATORS:
+        if btn_text in self._OPERATORS or btn_text in self._PARENTHESIS:
           fg_color = self._current_theme["operator_button_bg"]
           hover_color = self._current_theme["operator_button_hover"]
         elif btn_text in self._UTILITY:
@@ -147,13 +148,41 @@ class GUI(CT.CTk):
             self._on_button_click(text)
         )
 
-        button.grid(
-          row=r,
-          column=c,
-          padx=4,
-          pady=4,
-          sticky="nsew"
-        )
+        if btn_text == "DEL":
+          button.grid(
+            row=r, 
+            column=c,
+            columnspan=2,
+            padx=4, 
+            pady=4, 
+            sticky="nsew"
+            )
+        elif btn_text == "0":
+          button.grid(
+            row=r, 
+            column=c,
+            columnspan=2,
+            padx=4, 
+            pady=4, 
+            sticky="nsew"
+            )
+        elif btn_text == "=":
+          button.grid(
+            row=r, 
+            column=c,
+            rowspan=3,
+            padx=4, 
+            pady=4, 
+            sticky="nsew"
+            )
+        else:
+          button.grid(
+            row=r, 
+            column=c,
+            padx=4, 
+            pady=4, 
+            sticky="nsew"
+            )
 
   def _create_layout(self) -> None:
     # window layout
