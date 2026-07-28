@@ -34,7 +34,7 @@ class GUI(CT.CTk):
     self._bind_events()
 
   def _create_variables(self) -> None:
-    # icon issue, TO DO: fix the issue when packaging process
+    # icon issue, TODO: fix the issue when packaging process
     self._ICON_PATH: str = "assets/icon64.png"
     self._ICON = Tk.PhotoImage(file=self._ICON_PATH)
 
