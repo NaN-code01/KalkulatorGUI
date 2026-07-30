@@ -1,7 +1,8 @@
 import tkinter as Tk
 import customtkinter as CT
-from modules.validator import Validator
-from modules.calculator import Calculator
+from .constant import Variable
+from .validator import Validator
+from .calculator import Calculator
 
 # Centralized theme configuration.
 # Each theme defines the color palette used throughout the application.
@@ -35,7 +36,7 @@ class GUI(CT.CTk):
 
   def _create_variables(self) -> None:
     # icon issue, TODO: fix the issue when packaging process
-    self._ICON_PATH: str = "assets/icon64.png"
+    self._ICON_PATH: str = Variable.ICON_PATH
     self._ICON = Tk.PhotoImage(file=self._ICON_PATH)
 
     self._TITLE: str = "KalkulatorGUI"
