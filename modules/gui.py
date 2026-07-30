@@ -4,27 +4,6 @@ from .constant import Variable
 from .validator import Validator
 from .calculator import Calculator
 
-# Centralized theme configuration.
-# Each theme defines the color palette used throughout the application.
-THEME: dict[str, dict[str, str]] = {
-  "dark_theme": {
-    "bg": "#1e1e1e",
-    "fg": "#ffffff",
-
-    "button_bg": "#2e2e2e",
-    "button_hover": "#464646",
-
-    "operator_button_bg": "#0088ff",
-    "operator_button_hover": "#464646",
-
-    "utility_button_bg": "#0066FF",
-    "utility_button_hover": "#464646",
-
-    "font_color": "#ffffff",
-    "error_color": "#ff0000"
-  }
-}
-
 class GUI(CT.CTk):
   def __init__(self) -> None:
     super().__init__()
@@ -39,33 +18,23 @@ class GUI(CT.CTk):
     self._ICON_PATH: str = Variable.ICON_PATH
     self._ICON = Tk.PhotoImage(file=self._ICON_PATH)
 
-    self._TITLE: str = "KalkulatorGUI"
-    self._current_theme = THEME["dark_theme"]
+    self._TITLE: str = Variable.TITle
+    self._THEME: dict[str, dict[str, str]] = Variable.THEME
+    self._current_theme = self._THEME["dark_theme"]
 
-    self._GEOMETRY: str = "300x400"
+    self._GEOMETRY: str = Variable.GEOMETRY
     # minsize
-    self._MIN_WIDTH: int = 300
-    self._MIN_HEIGHT: int = 400
+    self._MIN_WIDTH: int = Variable.MIN_WIDTH
+    self._MIN_HEIGHT: int = Variable.MIN_HEIGHT
 
-    self._NUMBERS: set[str] = set("0123456789")
-    self._OPERATORS: set[str] = set("+-*/^")
-    self._PARENTHESIS: set[str] = set("()")
-    self._UTILITY: set[str] = {"=", "DEL", "C"}
-    self._BTN_TEXTS: list[list[str]] = [
-      ["C", "DEL", "",  "(", ")"],
-      ["7", "8",   "9", "/", "^"],
-      ["4", "5",   "6", "*", "="],
-      ["1", "2",   "3", "-", ""],
-      ["0", "",    ".", "+", ""]
-    ]
+    self._NUMBERS: set[str] = Variable.NUMBERS
+    self._OPERATORS: set[str] = Variable.OPERATORS
+    self._PARENTHESIS: set[str] = Variable.PARENTHESIS
+    self._UTILITY: set[str] = Variable.UTILITY
+    self._BTN_TEXTS: list[list[str]] = Variable.BTN_TEXTS
 
-    self._MAX_EXPRESSION_LENGTH: int = 50
-    self._NUMPAD_OPERATORS: dict[str, str] = {
-      "<KP_Add>": "+",
-      "<KP_Subtract>": "-",
-      "<KP_Multiply>": "*",
-      "<KP_Divide>": "/"
-    }
+    self._MAX_EXPRESSION_LENGTH: int = Variable.MAX_EXPRESSION_LENGTH
+    self._NUMPAD_OPERATORS: dict[str, str] = Variable.NUMPAD_OPERATORS
 
     self._expression: str = ""
     self._last_expression: str = ""
