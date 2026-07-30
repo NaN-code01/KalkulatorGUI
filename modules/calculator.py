@@ -1,7 +1,7 @@
 import re
 import math
 from typing import TypedDict
-from validator import Validator
+from modules.validator import Validator
 
 class OperatorInfo(TypedDict):
   prec: int

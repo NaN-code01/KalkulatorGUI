@@ -1,4 +1,4 @@
-from gui import GUI
+from modules.gui import GUI
 
 def main() -> None:
   KalkulatorGUI = GUI()

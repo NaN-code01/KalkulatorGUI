@@ -1,7 +1,7 @@
 import tkinter as Tk
 import customtkinter as CT
-from validator import Validator
-from calculator import Calculator
+from modules.validator import Validator
+from modules.calculator import Calculator
 
 # Centralized theme configuration.
 # Each theme defines the color palette used throughout the application.
