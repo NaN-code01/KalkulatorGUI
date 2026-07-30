@@ -8,15 +8,17 @@ class Validator:
   
   _NUMBERS: set[str] = set("0123456789")
   _OPERATORS: set[str] = set("+-*/^")
+  _UNARY_OPERATOR: set[str] = {"u+", "u-"}
   _PARENTHESES: set[str] = set("()")
   _ALLOWED_CHARS: set[str] = _NUMBERS | _OPERATORS | _PARENTHESES | set(".")
 
-  # allow implicit multiplication
+  # allow implicit multiplication and unary operator
   _VALID_TYPE_NEXT: dict[str, set[str]] = {
-    "number": {"operator","lparen", "rparen"},
-    "operator": {"number", "lparen"},
-    "lparen": {"number", "lparen"},
-    "rparen": {"operator","lparen", "rparen"}
+    "number":   {"operator","lparen", "rparen"},
+    "operator": {"number",  "lparen", "unary"},
+    "lparen":   {"number",  "lparen", "unary"},
+    "rparen":   {"operator","lparen", "rparen"},
+    "unary":    {"number",  "lparen", "unary"}
   }
 
   # VALIDATE EXPRESSION codeblock ------------------------------
@@ -48,16 +50,34 @@ class Validator:
     return True
 
   # VALIDATE TOKENS codeblock ------------------------------
-  
+
   @classmethod
-  def validate_tokens(cls, tokens: list[str], expression: str) -> bool:
+  def tokens_lexical_check(cls, tokens: list[str], expression: str) -> bool:
+    """Verify that the generated tokens exactly reconstruct the expression.
+    
+    Args:
+      tokens: The list of expression tokens.
+      expression: The original expression beffore tokenizing process.
+    
+    Return:
+      True if combined tokens is exacly like the original expression.
+
+    Raise:
+      VallueError: if combined token is ended up different from original expression.
+    """
+    if "".join(tokens) != expression:
+      raise ValueError("Expression contain an invalid token")
+    
+    return True
+
+  @classmethod
+  def validate_tokens(cls, tokens: list[str]) -> bool:
     """Validate a tokenized arithmetic expression.
 
-    Performs lexical, structural, parenthesis, and grammar validation.
+    Performs structural, parenthesis, and grammar validation.
 
     Args:
       tokens: The list of expression tokens.
-      expression: The original expression.
 
     Returns:
       True if all validation stages succeed.
@@ -67,36 +87,29 @@ class Validator:
     """
     
     return (
-      cls._lexical_check(tokens, expression)
-      and cls._start_end_check(tokens)
+      cls._start_end_check(tokens)
       and cls._parentheses_check(tokens)
       and cls._grammar_check(tokens)
     )
   
   # -- validate_tokens() method utility (private) - - - - - - - - - -
   @classmethod
-  def _lexical_check(cls, tokens: list[str], expression: str) -> bool:
-    """Verify that the generated tokens exactly reconstruct the expression."""
-    if "".join(tokens) != expression:
-      raise ValueError("Expression contain an invalid token")
-    
-    return True
-
-  @classmethod
   def _start_end_check(cls, tokens: list[str]) -> bool:
     """Validate the first and last tokens of the expression."""
-    operators: set[str] = cls._OPERATORS
-
     if not tokens:
       raise ValueError("Token list is empty")
     
-    if tokens[0] in operators or tokens[-1] in operators:
-      raise ValueError("Tokens cannot have an operator as a first or last token")
+    if tokens[0] in cls._OPERATORS:
+      raise ValueError("Tokens cannot have an operator as a first token")
     elif tokens[0] == ")":
       raise ValueError("The first token contain invalid parenthesis")
+    elif tokens[-1] in cls._OPERATORS:
+      raise ValueError("Tokens cannot have an operator as a last token")
     elif tokens[-1] == "(":
       raise ValueError("The last token contain invalid parenthesis")
-    
+    elif tokens[-1] in cls._UNARY_OPERATOR:
+      raise ValueError("The last token contain unary operator")
+        
     return True
 
   @staticmethod
@@ -127,14 +140,12 @@ class Validator:
   @classmethod
   def _grammar_check(cls, tokens: list[str]) -> bool:
     """Validate the grammatical order of adjacent token types."""
-    operator: set[str] = cls._OPERATORS
-    valid_type: dict[str, set[str]] = cls._VALID_TYPE_NEXT
     prev_type: str = ""
 
     for token in tokens:
-      curr_type: str = cls._token_type(token, operator)
+      curr_type: str = cls._token_type(token)
       
-      if prev_type and not cls._compare_type(prev_type, curr_type, valid_type):
+      if prev_type and not cls._compare_type(prev_type, curr_type):
         raise ValueError("Invalid token order")
       
       prev_type = curr_type
@@ -142,24 +153,26 @@ class Validator:
     return True
   
   # ---- gramar_check() method utility (private) -  -  -  -  -
-  @staticmethod
-  def _token_type(token: str, operator: set[str]) -> str:
+  @classmethod
+  def _token_type(cls, token: str) -> str:
     """Return the token category used during grammar validation."""
     if token.replace(".", "", 1).isdigit():
       return "number"
-    elif token in operator:
+    elif token in cls._OPERATORS:
       return "operator"
     elif token == "(":
       return "lparen"
     elif token == ")":
       return "rparen"
+    elif token in cls._UNARY_OPERATOR:
+      return "unary"
     else:
       raise ValueError("Token typing is invalid")
   
-  @staticmethod
-  def _compare_type(prev_type: str, curr_type: str, valid_type: dict[str, set[str]]) -> bool:
+  @classmethod
+  def _compare_type(cls, prev_type: str, curr_type: str) -> bool:
     """Return whether two consecutive token types form a valid sequence."""
-    return curr_type in valid_type[prev_type]
+    return curr_type in cls._VALID_TYPE_NEXT[prev_type]
   
   # VALIDATE EXPRESSION LENGTH codeblock ------------------------------
 

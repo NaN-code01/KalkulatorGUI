@@ -20,7 +20,11 @@ class Calculator:
     "-": {"prec": 1, "assoc": "L"},
     "*": {"prec": 2, "assoc": "L"},
     "/": {"prec": 2, "assoc": "L"},
-    "^": {"prec": 3, "assoc": "R"}
+    "^": {"prec": 3, "assoc": "R"},
+
+    # unary operator
+    "u-": {"prec": 3, "assoc": "R"},
+    "u+": {"prec": 3, "assoc": "R"},
   }
 
   # Define token pattern for regex
@@ -32,6 +36,8 @@ class Calculator:
     """,
     re.VERBOSE
   )
+
+  _PREV_UNARY_INDICATOR: set[str] = {"(", "+", "-", "*", "/", "^", "u+", "u-"}
 
   # CALCULATE codeblock ------------------------------
 
@@ -58,9 +64,12 @@ class Calculator:
     Validator.validate_expression(expression=expression)
     
     tokens: list[str] = cls._tokenize(expression)
-    Validator.validate_tokens(tokens=tokens, expression=expression)
+    Validator.tokens_lexical_check(tokens=tokens, expression=expression)
 
-    tokens_with_mult: list[str] = cls._insert_implicit_multiplication(tokens)
+    tokens_with_unary: list[str] = cls._normalize_unary_operators(tokens)
+    tokens_with_mult: list[str] = cls._insert_implicit_multiplication(tokens_with_unary)
+    Validator.validate_tokens(tokens=tokens_with_mult)
+
     postfix: list[str] = cls._infix_to_postfix(tokens_with_mult)
     result: str = cls._evaluate_postfix(postfix)
     return result
@@ -74,17 +83,38 @@ class Calculator:
 
   # ---- tokenize() method utility (private) -  -  -  -  -
   @classmethod
+  def _normalize_unary_operators(cls, tokens: list[str]) -> list[str]:
+    """Turn unary + or - into its own unary tokens"""
+    prev_unary_indicator: set[str] = cls._PREV_UNARY_INDICATOR
+    result: list[str] = []
+    prev: str | None = None
+
+    for token in tokens:
+      is_plusmin: bool = token in {"+", "-"}
+      is_prevforunary: bool = prev is None or prev in prev_unary_indicator
+      is_unary: bool = is_plusmin and is_prevforunary
+
+      if is_unary:
+        result.append(f"u{token}")
+      else:
+        result.append(token)
+
+      prev = result[-1]
+
+    return result
+    
+  @classmethod
   def _insert_implicit_multiplication(cls, tokens: list[str]) -> list[str]:
     """Insert '*' where multiplication is implied. (parenthesis multipication)"""
     result: list[str] = []
 
     for token in tokens:
       if result:
-        prev = result[-1]
+        prev: str = result[-1]
 
         # when a value is followed by another value or an opening parenthesis
-        prev_is_value = cls._is_number(prev) or prev == ")"
-        curr_is_value = cls._is_number(token) or token == "("
+        prev_is_value: bool = cls._is_number(prev) or prev == ")"
+        curr_is_value: bool = cls._is_number(token) or token == "("
 
         if prev_is_value and curr_is_value:
           result.append("*")
@@ -182,11 +212,14 @@ class Calculator:
     for token in postfix:
       if cls._is_number(token):
         stack.append(float(token))
-      
+      elif token == "u-":
+        stack.append(-stack.pop())
+      elif token == "u+":
+        stack.append(stack.pop())
       else:
         value1: float = stack.pop()
         value2: float = stack.pop()
-        stack.append(cls._basic_eval(value1, value2, operator=token))
+        stack.append(cls._binary_eval(value1, value2, operator=token))
     
     result: float = stack.pop()
 
@@ -199,7 +232,7 @@ class Calculator:
 
   # ---- evaluate_postfix() method utility (private) -  -  -  -  -
   @staticmethod
-  def _basic_eval(value1: float, value2: float, operator: str) -> float:
+  def _binary_eval(value1: float, value2: float, operator: str) -> float:
     """Apply a binary arithmetic operator to two operands."""
     Validator.validate_evaluation(operator=operator, divisor=value1)
 
