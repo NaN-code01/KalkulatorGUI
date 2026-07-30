@@ -408,10 +408,3 @@ class GUI(CT.CTk):
       )
 
     self.main_display.configure(state="readonly")
-
-def main() -> None:
-  app = GUI()
-  app.mainloop()
-
-if __name__ == "__main__":
-  main()
