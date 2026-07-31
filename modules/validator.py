@@ -1,3 +1,5 @@
+from .constants import ValidatorConstants, GlobalConstants
+
 class Validator:
   """Validate arithmetic expressions and token sequences.
 
@@ -5,21 +7,15 @@ class Validator:
   expression is evaluated. Validation is separated into multiple stages
   to ensure expressions follow the expected syntax.
   """
-  
-  _NUMBERS: set[str] = set("0123456789")
-  _OPERATORS: set[str] = set("+-*/^")
-  _UNARY_OPERATOR: set[str] = {"u+", "u-"}
-  _PARENTHESES: set[str] = set("()")
-  _ALLOWED_CHARS: set[str] = _NUMBERS | _OPERATORS | _PARENTHESES | set(".")
+
+  # constant call - - - - - - - - - -
+  _OPERATORS: set[str] = GlobalConstants.OPERATORS
+  _UNARY_OPERATOR: set[str] = GlobalConstants.UNARY_OPERATOR
+  _PARENTHESES: set[str] = GlobalConstants.PARENTHESES
+  _ALLOWED_CHARS: set[str] = ValidatorConstants.ALLOWED_CHARS
 
   # allow implicit multiplication and unary operator
-  _VALID_TYPE_NEXT: dict[str, set[str]] = {
-    "number":   {"operator","lparen", "rparen"},
-    "operator": {"number",  "lparen", "unary"},
-    "lparen":   {"number",  "lparen", "unary"},
-    "rparen":   {"operator","lparen", "rparen"},
-    "unary":    {"number",  "lparen", "unary"}
-  }
+  _VALID_TYPE_NEXT: dict[str, set[str]] = ValidatorConstants.VALID_TYPE_NEXT
 
   # VALIDATE EXPRESSION codeblock ------------------------------
   

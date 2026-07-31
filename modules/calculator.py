@@ -1,11 +1,6 @@
-import re
 import math
-from typing import TypedDict
-from modules.validator import Validator
-
-class OperatorInfo(TypedDict):
-  prec: int
-  assoc: str
+from .constants import CalculatorConstants
+from .validator import Validator
 
 class Calculator:
   """Evaluate mathematical expressions using the Shunting Yard algorithm.
@@ -14,30 +9,10 @@ class Calculator:
   being evaluated. Input validation is delegated to the Validator class.
   """
 
-  # Define operator precedence and associativity: "L" for Left, "R" for Right
-  _OPERATORS: dict[str, OperatorInfo] = {
-    "+": {"prec": 1, "assoc": "L"},
-    "-": {"prec": 1, "assoc": "L"},
-    "*": {"prec": 2, "assoc": "L"},
-    "/": {"prec": 2, "assoc": "L"},
-    "^": {"prec": 3, "assoc": "R"},
-
-    # unary operator
-    "u-": {"prec": 3, "assoc": "R"},
-    "u+": {"prec": 3, "assoc": "R"},
-  }
-
-  # Define token pattern for regex
-  _TOKEN_PATTERN = re.compile(
-    r"""
-    \d+(?:\.\d+)?   # number
-    |               # or
-    [+\-*/^()]      # operator or parenthesis
-    """,
-    re.VERBOSE
-  )
-
-  _PREV_UNARY_INDICATOR: set[str] = {"(", "+", "-", "*", "/", "^", "u+", "u-"}
+  # constants call - - - - - - - - - -
+  _TOKEN_PATTERN = CalculatorConstants.TOKEN_PATTERN
+  _OPERATORS = CalculatorConstants.OPERATOR_INFO
+  _PREV_UNARY_INDICATOR: set[str] = CalculatorConstants.PREV_UNARY_INDICATOR
 
   # CALCULATE codeblock ------------------------------
 

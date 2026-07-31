@@ -1,6 +1,6 @@
 import tkinter as Tk
 import customtkinter as CT
-from .constant import Variable
+from .constants import GuiConstants, GlobalConstants
 from .validator import Validator
 from .calculator import Calculator
 
@@ -14,27 +14,35 @@ class GUI(CT.CTk):
     self._bind_events()
 
   def _create_variables(self) -> None:
+    # constants call for checking - - - - - - - - - -
+    self._NUMBERS: set[str] = GlobalConstants.NUMBERS
+    self._OPERATORS: set[str] = GlobalConstants.OPERATORS
+    self._PARENTHESES: set[str] = GlobalConstants.PARENTHESES
+
+
+    # constants call for set up gui - - - - - - - - - -
+
     # icon issue, TODO: fix the issue when packaging process
-    self._ICON_PATH: str = Variable.ICON_PATH
-    self._ICON = Tk.PhotoImage(file=self._ICON_PATH)
+    self._ICON_PATH_STR: str = GuiConstants.ICON_PATH_STR
+    self._ICON = Tk.PhotoImage(file=self._ICON_PATH_STR)
 
-    self._TITLE: str = Variable.TITle
-    self._THEME: dict[str, dict[str, str]] = Variable.THEME
-    self._current_theme = self._THEME["dark_theme"]
+    self._TITLE: str = GuiConstants.TITLE
+    self._THEME: dict[str, dict[str, str]] = GuiConstants.THEME
 
-    self._GEOMETRY: str = Variable.GEOMETRY
+    self._GEOMETRY: str = GuiConstants.GEOMETRY
     # minsize
-    self._MIN_WIDTH: int = Variable.MIN_WIDTH
-    self._MIN_HEIGHT: int = Variable.MIN_HEIGHT
+    self._MIN_WIDTH: int = GuiConstants.MIN_WIDTH
+    self._MIN_HEIGHT: int = GuiConstants.MIN_HEIGHT
 
-    self._NUMBERS: set[str] = Variable.NUMBERS
-    self._OPERATORS: set[str] = Variable.OPERATORS
-    self._PARENTHESIS: set[str] = Variable.PARENTHESIS
-    self._UTILITY: set[str] = Variable.UTILITY
-    self._BTN_TEXTS: list[list[str]] = Variable.BTN_TEXTS
+    self._UTILITY: set[str] = GuiConstants.UTILITY
+    self._BTN_TEXTS: list[list[str]] = GuiConstants.BTN_TEXTS
 
-    self._MAX_EXPRESSION_LENGTH: int = Variable.MAX_EXPRESSION_LENGTH
-    self._NUMPAD_OPERATORS: dict[str, str] = Variable.NUMPAD_OPERATORS
+    self._MAX_EXPRESSION_LENGTH: int = GuiConstants.MAX_EXPRESSION_LENGTH
+    self._NUMPAD_OPERATORS: dict[str, str] = GuiConstants.NUMPAD_OPERATORS
+
+
+    # variables set up - - - - - - - - - -
+    self._current_theme = self._THEME["dark_theme"]
 
     self._expression: str = ""
     self._last_expression: str = ""
@@ -95,7 +103,7 @@ class GUI(CT.CTk):
         if btn_text == "":
             continue
         
-        if btn_text in self._OPERATORS or btn_text in self._PARENTHESIS:
+        if btn_text in self._OPERATORS or btn_text in self._PARENTHESES:
           fg_color = self._current_theme["operator_button_bg"]
           hover_color = self._current_theme["operator_button_hover"]
         elif btn_text in self._UTILITY:
