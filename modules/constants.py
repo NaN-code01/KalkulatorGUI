@@ -1,6 +1,7 @@
 import re
 from pathlib import Path
 from typing import TypedDict
+from .validator import Validator
 
 class OperatorInfo(TypedDict):
   prec: int
@@ -31,6 +32,7 @@ class PathConstants:
   ROOT_DIR: Path = Path(__file__).resolve().parent.parent
   ASSETS_DIR: Path = ROOT_DIR / "assets"
   ICON_PATH: Path = ASSETS_DIR / "icon64.png"
+  THEME_PATH: Path = ASSETS_DIR / "theme.json"
 
 class GlobalConstants:                      # called by:
   NUMBERS: set[str] = set("0123456789")     # gui
@@ -41,7 +43,12 @@ class GlobalConstants:                      # called by:
 class GuiConstants:
   ICON_PATH_STR: str = str(PathConstants.ICON_PATH)
   TITLE: str = "KalkulatorGUI"
-  THEME: dict[str, dict[str, str]] = THEME
+
+  THEME: dict[str, dict[str, str]] = (
+    Validator.validate_and_load_json(
+      str(PathConstants.THEME_PATH)
+    )
+  )
 
   GEOMETRY: str = "300x400"
   # minsize
