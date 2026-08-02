@@ -2,7 +2,7 @@ import re
 from pathlib import Path
 from typing import TypedDict
 
-from .validator import Validator
+from .utils import Utility
 
 
 class OperatorInfo(TypedDict):
@@ -29,7 +29,7 @@ class GuiConstants:
   ICON_PATH_STR: str = str(PathConstants.ICON_PATH)
 
   THEME: dict[str, dict[str, str]] = (
-    Validator.validate_and_load_json(
+    Utility.validate_and_load_json(
       file_path=str(PathConstants.THEME_PATH)
     )
   )
