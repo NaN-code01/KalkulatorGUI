@@ -7,27 +7,6 @@ class OperatorInfo(TypedDict):
   prec: int
   assoc: str
 
-# Centralized theme configuration.
-# Each theme defines the color palette used throughout the application.
-THEME: dict[str, dict[str, str]] = {
-  "dark_theme": {
-    "bg": "#1e1e1e",
-    "fg": "#ffffff",
-
-    "button_bg": "#2e2e2e",
-    "button_hover": "#464646",
-
-    "operator_button_bg": "#0088ff",
-    "operator_button_hover": "#464646",
-
-    "utility_button_bg": "#0066FF",
-    "utility_button_hover": "#464646",
-
-    "font_color": "#ffffff",
-    "error_color": "#ff0000"
-  }
-}
-
 class PathConstants:
   ROOT_DIR: Path = Path(__file__).resolve().parent.parent
   ASSETS_DIR: Path = ROOT_DIR / "assets"
