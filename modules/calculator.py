@@ -1,6 +1,7 @@
 import math
 
 from .constants import CalculatorConstants
+from .utils import Utility
 from .validator import Validator
 
 
@@ -90,8 +91,8 @@ class Calculator:
         prev: str = result[-1]
 
         # when a value is followed by another value or an opening parenthesis
-        prev_is_value: bool = cls._is_number(prev) or prev == ")"
-        curr_is_value: bool = cls._is_number(token) or token == "("
+        prev_is_value: bool = Utility.is_number(prev) or prev == ")"
+        curr_is_value: bool = Utility.is_number(token) or token == "("
 
         if prev_is_value and curr_is_value:
           result.append("*")
@@ -113,7 +114,7 @@ class Calculator:
     for token in tokens:
 
       # number handling
-      if cls._is_number(token):
+      if Utility.is_number(token):
         output_queue.append(token)
         continue
       
@@ -189,7 +190,7 @@ class Calculator:
     stack: list[float] = []
     
     for token in postfix:
-      if cls._is_number(token):
+      if Utility.is_number(token):
         stack.append(float(token))
       elif token == "u-":
         stack.append(-stack.pop())
@@ -232,12 +233,3 @@ class Calculator:
       raise ValueError(f"Numerical result out of range: {value2} {operator} {value1}")
 
     return result
-
-
-  # UTILITY METHOD (private) ------------------------------
-
-  @staticmethod
-  def _is_number(token: str) -> bool:
-    """Return True if the token represents a numeric value."""
-    # .replace() for decimal number checked by .isdigit()
-    return token.replace(".", "", 1).isdigit()
