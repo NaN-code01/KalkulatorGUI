@@ -1,6 +1,7 @@
 import json
 from typing import Any
-from .constants import ValidatorConstants, GlobalConstants, PathConstants
+
+from .constants import ValidatorConstants, GlobalConstants
 
 
 class Validator:

@@ -1,5 +1,7 @@
 import tkinter as Tk
+
 import customtkinter as CT
+
 from .constants import GuiConstants, GlobalConstants
 from .validator import Validator
 from .calculator import Calculator
@@ -22,13 +24,14 @@ class GUI(CT.CTk):
     self._OPERATORS: set[str] = GlobalConstants.OPERATORS
     self._PARENTHESES: set[str] = GlobalConstants.PARENTHESES
 
+
     # constants call for set up gui - - - - - - - - - -
+    self._TITLE: str = GuiConstants.TITLE
 
     # icon issue, TODO: fix the issue when packaging process
     self._ICON_PATH_STR: str = GuiConstants.ICON_PATH_STR
     self._ICON = Tk.PhotoImage(file=self._ICON_PATH_STR)
 
-    self._TITLE: str = GuiConstants.TITLE
     self._THEME: dict[str, dict[str, str]] = GuiConstants.THEME
 
     self._GEOMETRY: str = GuiConstants.GEOMETRY
@@ -41,6 +44,7 @@ class GUI(CT.CTk):
 
     self._MAX_EXPRESSION_LENGTH: int = GuiConstants.MAX_EXPRESSION_LENGTH
     self._NUMPAD_OPERATORS: dict[str, str] = GuiConstants.NUMPAD_OPERATORS
+
 
     # variables set up - - - - - - - - - -
     self._current_theme = self._THEME["dark_theme"]
@@ -55,8 +59,8 @@ class GUI(CT.CTk):
 
 
   def _setup_window(self) -> None:
-    self.iconphoto(True, self._ICON)
     self.title(self._TITLE)
+    self.iconphoto(True, self._ICON)
     self.configure(bg=self._current_theme["bg"])
     self.geometry(self._GEOMETRY)
     self.minsize(self._MIN_WIDTH, self._MIN_HEIGHT)

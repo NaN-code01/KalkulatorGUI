@@ -1,6 +1,7 @@
 import re
 from pathlib import Path
 from typing import TypedDict
+
 from .validator import Validator
 
 
@@ -24,12 +25,12 @@ class GlobalConstants:                      # called by:
 
 
 class GuiConstants:
-  ICON_PATH_STR: str = str(PathConstants.ICON_PATH)
   TITLE: str = "KalkulatorGUI"
+  ICON_PATH_STR: str = str(PathConstants.ICON_PATH)
 
   THEME: dict[str, dict[str, str]] = (
     Validator.validate_and_load_json(
-      str(PathConstants.THEME_PATH)
+      file_path=str(PathConstants.THEME_PATH)
     )
   )
 
