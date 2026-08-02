@@ -2,6 +2,7 @@ import json
 from typing import Any
 from .constants import ValidatorConstants, GlobalConstants, PathConstants
 
+
 class Validator:
   """Validate arithmetic expressions and token sequences.
 
@@ -46,6 +47,7 @@ class Validator:
       raise ValueError("Expression contain invalid character")
     
     return True
+
 
   # VALIDATE TOKENS codeblock ------------------------------
 
@@ -173,6 +175,7 @@ class Validator:
     """Return whether two consecutive token types form a valid sequence."""
     return curr_type in cls._VALID_TYPE_NEXT[prev_type]
   
+
   # VALIDATE EXPRESSION LENGTH codeblock ------------------------------
 
   @classmethod
@@ -195,6 +198,7 @@ class Validator:
       raise IndexError(f"Expression reached maximum length: {max_length}")
 
     return True
+
 
   # VALIDATE EVALUATION codeblock ------------------------------
 
@@ -234,6 +238,7 @@ class Validator:
       raise ZeroDivisionError("Cannot divide by zero")
     
     return True
+
 
   # VALIDATE AND LOAD JSON codeblock ------------------------------
 

@@ -4,7 +4,9 @@ from .constants import GuiConstants, GlobalConstants
 from .validator import Validator
 from .calculator import Calculator
 
+
 class GUI(CT.CTk):
+
   def __init__(self) -> None:
     super().__init__()
     self._create_variables()
@@ -13,12 +15,12 @@ class GUI(CT.CTk):
     self._create_widgets()
     self._bind_events()
 
+
   def _create_variables(self) -> None:
     # constants call for checking - - - - - - - - - -
     self._NUMBERS: set[str] = GlobalConstants.NUMBERS
     self._OPERATORS: set[str] = GlobalConstants.OPERATORS
     self._PARENTHESES: set[str] = GlobalConstants.PARENTHESES
-
 
     # constants call for set up gui - - - - - - - - - -
 
@@ -40,7 +42,6 @@ class GUI(CT.CTk):
     self._MAX_EXPRESSION_LENGTH: int = GuiConstants.MAX_EXPRESSION_LENGTH
     self._NUMPAD_OPERATORS: dict[str, str] = GuiConstants.NUMPAD_OPERATORS
 
-
     # variables set up - - - - - - - - - -
     self._current_theme = self._THEME["dark_theme"]
 
@@ -52,12 +53,14 @@ class GUI(CT.CTk):
     self._result: str = ""
     self._error_message: str = ""
 
+
   def _setup_window(self) -> None:
     self.iconphoto(True, self._ICON)
     self.title(self._TITLE)
     self.configure(bg=self._current_theme["bg"])
     self.geometry(self._GEOMETRY)
     self.minsize(self._MIN_WIDTH, self._MIN_HEIGHT)
+
 
   def _create_frames(self) -> None:
     self.display_frame: CT.CTkFrame = CT.CTkFrame(
@@ -70,10 +73,12 @@ class GUI(CT.CTk):
       fg_color=self._current_theme["bg"],
     )
 
+
   def _create_widgets(self) -> None:
     self._create_display()
     self._create_buttons()
     self._create_layout()
+
 
   def _create_display(self) -> None:
     self.main_display = CT.CTkEntry(
@@ -213,6 +218,7 @@ class GUI(CT.CTk):
       sticky="nsew"
     )
 
+
   def _bind_events(self) -> None:
     # bind mouse scroll
     self.main_display.bind("<Button-4>", self._scroll_display)
@@ -244,11 +250,13 @@ class GUI(CT.CTk):
     for key, value in self._NUMPAD_OPERATORS.items():
       self.bind(key, lambda event, v=value: self._on_button_click(v))
 
+
   def _scroll_display(self, event) -> None:
     if event.num == 4:
         self.main_display.xview_scroll(-1, "units")
     elif event.num == 5:
         self.main_display.xview_scroll(1, "units")
+
 
   def _on_button_click(self, btn_text: str) -> None:
     self._clear_error()
@@ -284,6 +292,7 @@ class GUI(CT.CTk):
     
     if btn_text in self._OPERATORS:
       self._input_operator(btn_text)
+
 
   def _calculate(self) -> None:
     if (
@@ -354,6 +363,7 @@ class GUI(CT.CTk):
     self._expression += operator
     self._last_operation = operator
     self._update_display("expression")
+
 
   def _show_error(self, message: str) -> None:
     self._error_message = message

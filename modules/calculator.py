@@ -2,6 +2,7 @@ import math
 from .constants import CalculatorConstants
 from .validator import Validator
 
+
 class Calculator:
   """Evaluate mathematical expressions using the Shunting Yard algorithm.
 
@@ -99,6 +100,7 @@ class Calculator:
     return result
   # -  -  -  -  -
   
+  
   @classmethod
   def _infix_to_postfix(cls, tokens: list[str]) -> list[str]:
     """Convert infix tokens to postfix notation using the Shunting Yard algorithm."""
@@ -179,6 +181,7 @@ class Calculator:
     )
   # -  -  -  -  -
 
+  
   @classmethod
   def _evaluate_postfix(cls, postfix: list[str]) -> str:
     """Evaluate a postfix expression and return the formatted result."""
@@ -228,6 +231,7 @@ class Calculator:
       raise ValueError(f"Numerical result out of range: {value2} {operator} {value1}")
 
     return result
+
 
   # UTILITY METHOD (private) ------------------------------
 
