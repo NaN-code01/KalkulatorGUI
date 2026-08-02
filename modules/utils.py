@@ -48,6 +48,18 @@ class Utility:
 
   @staticmethod
   def is_number(token: str) -> bool:
-    """Return True if the token represents a numeric value."""
+    """Return whether a token represents a numeric value.
+
+    A token is considered numeric if it contains only digits or a
+    single decimal point.
+
+    Args:
+      token: The token to check.
+
+    Returns:
+      True if the token represents a valid integer or decimal number,
+      otherwise False.
+    """
+    
     # .replace() for decimal number checked by .isdigit()
     return token.replace(".", "", 1).isdigit()
