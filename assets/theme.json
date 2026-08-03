@@ -2,6 +2,7 @@
   "dark_theme": {
     "bg": "#1e1e1e",
     "fg": "#ffffff",
+    "accent": "#0066FF",
     "button_bg": "#2e2e2e",
     "button_hover": "#464646",
     "operator_button_bg": "#0088ff",
@@ -14,6 +15,7 @@
   "light_theme": {
     "bg": "#f5f5f5",
     "fg": "#000000",
+    "accent": "#0066FF",
     "button_bg": "#e0e0e0",
     "button_hover": "#d0d0d0",
     "operator_button_bg": "#0088ff",

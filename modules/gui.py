@@ -18,6 +18,8 @@ class GUI(CT.CTk):
     self._bind_events()
 
 
+  # Initialize ------------------------------
+
   def _create_variables(self) -> None:
     # constants call for checking - - - - - - - - - -
     self._NUMBERS: set[str] = GlobalConstants.NUMBERS
@@ -48,6 +50,7 @@ class GUI(CT.CTk):
 
     # variables set up - - - - - - - - - -
     self._current_theme = self._THEME["dark_theme"]
+    self.calculator_buttons: dict[str, CT.CTkButton] = {}
 
     self._expression: str = ""
     self._last_expression: str = ""
@@ -70,11 +73,13 @@ class GUI(CT.CTk):
     self.display_frame: CT.CTkFrame = CT.CTkFrame(
       master=self,
       fg_color=self._current_theme["bg"],
+      border_color=self._current_theme["bg"]
     )
 
     self.btn_frame: CT.CTkFrame = CT.CTkFrame(
       master=self,
       fg_color=self._current_theme["bg"],
+      border_color=self._current_theme["bg"]
     )
 
 
@@ -83,6 +88,45 @@ class GUI(CT.CTk):
     self._create_buttons()
     self._create_layout()
 
+
+  def _bind_events(self) -> None:
+    # bind mouse scroll
+    self.main_display.bind("<Button-4>", self._scroll_display)
+    self.main_display.bind("<Button-5>", self._scroll_display)
+
+
+    # bind utility keys
+    self.bind("<Escape>", lambda event: self._on_button_click("C"))
+    self.bind("<BackSpace>", lambda event: self._on_button_click("DEL"))
+
+    for key in {"<Return>", "<KP_Enter>", "="}:
+      self.bind(key, lambda event: self._on_button_click("="))
+
+
+    # bind input keys
+    for key in {"<KP_Decimal>", "."}:
+      self.bind(key, lambda event: self._on_button_click("."))
+
+    for key in {"(", ")"}:
+      self.bind(key, lambda event, k=key: self._on_button_click(k))
+
+
+    # number bind
+    for key in self._NUMBERS:
+      self.bind(key, lambda event, k=key: self._on_button_click(k))
+      self.bind(f"<KP_{key}>", lambda event, k=key: self._on_button_click(k))
+
+
+    # operator bind    
+    for key in self._OPERATORS:
+      self.bind(key, lambda event, k=key: self._on_button_click(k))
+
+    for key, value in self._NUMPAD_OPERATORS.items():
+      self.bind(key, lambda event, v=value: self._on_button_click(v))
+
+
+
+  # -- create_widget() - - - - - - - - - -
 
   def _create_display(self) -> None:
     self.main_display = CT.CTkEntry(
@@ -103,73 +147,14 @@ class GUI(CT.CTk):
       wraplength=200,
       font=("Arial", 16),
       text_color=self._current_theme["error_color"],
-      fg_color=self._current_theme["bg"],
+      fg_color=self._current_theme["bg"]
     )
 
+
   def _create_buttons(self) -> None:
-    for r, row in enumerate(self._BTN_TEXTS):
-      for c, btn_text in enumerate(row):
-        if btn_text == "":
-            continue
-        
-        if btn_text in self._OPERATORS or btn_text in self._PARENTHESES:
-          fg_color = self._current_theme["operator_button_bg"]
-          hover_color = self._current_theme["operator_button_hover"]
-        elif btn_text in self._UTILITY:
-          fg_color = self._current_theme["utility_button_bg"]
-          hover_color = self._current_theme["utility_button_hover"]
-        else:
-          fg_color = self._current_theme["button_bg"]
-          hover_color = self._current_theme["button_hover"]
+    self._create_calculator_buttons()
+    self._create_theme_selector()
 
-        button: CT.CTkButton = CT.CTkButton(
-          text=btn_text,
-          master=self.btn_frame,
-          width=50,
-          height=50,
-          font=("Arial", 16),
-          fg_color=fg_color,
-          text_color=self._current_theme["font_color"],
-          hover_color=hover_color,
-          command=lambda text=btn_text: 
-            self._on_button_click(text)
-        )
-
-        if btn_text == "DEL":
-          button.grid(
-            row=r, 
-            column=c,
-            columnspan=2,
-            padx=4, 
-            pady=4, 
-            sticky="nsew"
-            )
-        elif btn_text == "0":
-          button.grid(
-            row=r, 
-            column=c,
-            columnspan=2,
-            padx=4, 
-            pady=4, 
-            sticky="nsew"
-            )
-        elif btn_text == "=":
-          button.grid(
-            row=r, 
-            column=c,
-            rowspan=3,
-            padx=4, 
-            pady=4, 
-            sticky="nsew"
-            )
-        else:
-          button.grid(
-            row=r, 
-            column=c,
-            padx=4, 
-            pady=4, 
-            sticky="nsew"
-            )
 
   def _create_layout(self) -> None:
     # window layout
@@ -177,6 +162,18 @@ class GUI(CT.CTk):
     self.grid_rowconfigure(1, weight=5)
     self.grid_columnconfigure(0, weight=1)
 
+    # display frame layout
+    self.display_frame.grid_rowconfigure(0, weight=1)
+    self.display_frame.grid_rowconfigure(1, weight=0)
+    self.display_frame.grid_rowconfigure(2, weight=1)
+    self.display_frame.grid_columnconfigure(0, weight=1)
+    
+    self.display_frame.grid(
+      row=0, 
+      column=0,
+      sticky="nsew"
+    )
+    
     # display layout
     self.main_display.grid(
       row=0,
@@ -194,66 +191,184 @@ class GUI(CT.CTk):
       sticky="nsew"
     )
 
-    # display frame layout
-    self.display_frame.grid_rowconfigure(0, weight=1)
-    self.display_frame.grid_rowconfigure(1, weight=0)
-    self.display_frame.grid_columnconfigure(0, weight=1)
-    
-    self.display_frame.grid(
-      row=0, 
-      column=0, 
+    self.theme_selector.grid(
+      row=2,
+      column=0,
       padx=4, 
       pady=4, 
-      sticky="nsew"
+      sticky="sw"
     )
     
     # button frame layout
+    self.btn_frame.grid(
+      row=1, 
+      column=0, 
+      sticky="nsew"
+    )
+
     for row in range(len(self._BTN_TEXTS)):
       self.btn_frame.grid_rowconfigure(row, weight=1)
 
     for column in range(len(self._BTN_TEXTS[0])):
       self.btn_frame.grid_columnconfigure(column, weight=1)
 
-    self.btn_frame.grid(
-      row=1, 
-      column=0, 
-      padx=4, 
-      pady=4, 
-      sticky="nsew"
+
+
+  # ---- create_buttons() -  -  -  -  -
+
+
+  def _create_theme_selector(self) -> None:
+    self.theme_selector = CT.CTkSegmentedButton(
+      master=self.display_frame,
+      values=["Light", "Dark"],
+      command=self._on_theme_changed,
+      font=("Arial", 12),
+      text_color=self._current_theme["font_color"],
+      fg_color=self._current_theme["button_bg"],
+      selected_color=self._current_theme["accent"],
+      selected_hover_color=self._current_theme["button_hover"],
+      unselected_color=self._current_theme["button_bg"],
+      unselected_hover_color=self._current_theme["button_hover"]
     )
 
+    self.theme_selector.set(value="Dark")
 
-  def _bind_events(self) -> None:
-    # bind mouse scroll
-    self.main_display.bind("<Button-4>", self._scroll_display)
-    self.main_display.bind("<Button-5>", self._scroll_display)
+  #     ---- theme utility
 
-    # bind utility keys
-    for key in {"<Return>", "<KP_Enter>", "="}:
-      self.bind(key, lambda event: self._on_button_click("="))
-    
-    self.bind("<Escape>", lambda event: self._on_button_click("C"))
-    self.bind("<BackSpace>", lambda event: self._on_button_click("DEL"))
+  def _on_theme_changed(self, value: str) -> None:
+    match value:
+      case "Light": self._set_theme("light_theme")
+      case "Dark": self._set_theme("dark_theme")
 
-    # bind input keys
-    for key in {"<KP_Decimal>", "."}:
-      self.bind(key, lambda event: self._on_button_click("."))
+  def _set_theme(self, theme_name: str) -> None:
+    self._current_theme = self._THEME[theme_name]
+    self._update_theme()
 
-    for key in {"(", ")"}:
-      self.bind(key, lambda event, k=key: self._on_button_click(k))
+  def _update_theme(self) -> None:
+    self.configure(bg=self._current_theme["bg"])
 
-    # number bind
-    for key in self._NUMBERS:
-      self.bind(key, lambda event, k=key: self._on_button_click(k))
-      self.bind(f"<KP_{key}>", lambda event, k=key: self._on_button_click(k))
+    self.display_frame.configure(
+      fg_color=self._current_theme["bg"],
+      border_color=self._current_theme["bg"]
+    )
+    self.btn_frame.configure(
+      fg_color=self._current_theme["bg"],
+      border_color=self._current_theme["bg"]
+    )
 
-    # operator bind    
-    for key in self._OPERATORS:
-      self.bind(key, lambda event, k=key: self._on_button_click(k))
+    self.main_display.configure(
+      text_color=self._current_theme["font_color"],
+      fg_color=self._current_theme["bg"],
+      border_color=self._current_theme["bg"]
+    )
+    self.error_display.configure(
+      text_color=self._current_theme["error_color"],
+      fg_color=self._current_theme["bg"]
+    )
 
-    for key, value in self._NUMPAD_OPERATORS.items():
-      self.bind(key, lambda event, v=value: self._on_button_click(v))
+    self.theme_selector.configure(
+      text_color=self._current_theme["font_color"],
+      fg_color=self._current_theme["button_bg"],
+      selected_color=self._current_theme["accent"],
+      selected_hover_color=self._current_theme["button_hover"],
+      unselected_color=self._current_theme["button_bg"],
+      unselected_hover_color=self._current_theme["button_hover"]
+    )
 
+    for btn_text, button in self.calculator_buttons.items():
+      btn_color: dict[str, str] = self._get_button_color(btn_text)
+
+      button.configure(
+        text_color=self._current_theme["font_color"],
+        fg_color=btn_color["fg_color"],
+        hover_color=btn_color["hover_color"]
+      )
+
+  def _get_button_color(self, btn_text: str) -> dict[str, str]:
+    btn_color: dict[str, str] = {}
+
+    if btn_text in self._OPERATORS or btn_text in self._PARENTHESES:
+      fg_color = self._current_theme["operator_button_bg"]
+      hover_color = self._current_theme["operator_button_hover"]
+
+    elif btn_text in self._UTILITY:
+      fg_color = self._current_theme["utility_button_bg"]
+      hover_color = self._current_theme["utility_button_hover"]
+
+    else:
+      fg_color = self._current_theme["button_bg"]
+      hover_color = self._current_theme["button_hover"]
+
+    btn_color["fg_color"] = fg_color
+    btn_color["hover_color"] = hover_color
+
+    return btn_color
+
+  #     ----
+
+
+  def _create_calculator_buttons(self) -> None:
+    for r, row in enumerate(self._BTN_TEXTS):
+      for c, btn_text in enumerate(row):
+        if btn_text == "":
+            continue
+        
+        btn_color: dict[str, str] = self._get_button_color(btn_text)
+
+        button: CT.CTkButton = CT.CTkButton(
+          master=self.btn_frame,
+          command=lambda text=btn_text: 
+            self._on_button_click(text),
+          width=50,
+          height=50,
+          text=btn_text,
+          font=("Arial", 16),
+          text_color=self._current_theme["font_color"],
+          fg_color=btn_color["fg_color"],
+          hover_color=btn_color["hover_color"]
+        )
+
+        if btn_text == "DEL":
+          button.grid(
+            row=r, 
+            column=c,
+            columnspan=2,
+            padx=4, 
+            pady=4, 
+            sticky="nsew"
+          )
+        elif btn_text == "0":
+          button.grid(
+            row=r, 
+            column=c,
+            columnspan=2,
+            padx=4, 
+            pady=4, 
+            sticky="nsew"
+          )
+        elif btn_text == "=":
+          button.grid(
+            row=r, 
+            column=c,
+            rowspan=3,
+            padx=4, 
+            pady=4, 
+            sticky="nsew"
+          )
+        else:
+          button.grid(
+            row=r, 
+            column=c,
+            padx=4, 
+            pady=4, 
+            sticky="nsew"
+          )
+
+        self.calculator_buttons[btn_text] = button
+
+
+
+  # -- bind_events() - - - - - - - - - -
 
   def _scroll_display(self, event) -> None:
     if event.num == 4:
@@ -261,29 +376,33 @@ class GUI(CT.CTk):
     elif event.num == 5:
         self.main_display.xview_scroll(1, "units")
 
-
   def _on_button_click(self, btn_text: str) -> None:
     self._clear_error()
 
     # utility button - - - - -
-    if btn_text == "=":
-      self._calculate()
-    
+        
     if btn_text == "C":
       self._clear()
     
     if btn_text == "DEL":
       self._delete_last_character()
 
+    if btn_text == "=":
+      self._calculate()
+
+
     # input button - - - - -
+    
     try:
       Validator.validate_expression_length(
         expression=self._expression,
         max_length=self._MAX_EXPRESSION_LENGTH
       )
+
     except Exception as e:
       self._show_error(str(e))
       return
+
 
     if btn_text == ".":
       self._input_decimal()
@@ -296,6 +415,26 @@ class GUI(CT.CTk):
     
     if btn_text in self._OPERATORS:
       self._input_operator(btn_text)
+
+
+
+# ---- on_button_click() -  -  -  -  -
+
+  def _clear(self) -> None:
+    self._expression = ""
+    self._result = ""
+    self._update_display("expression")
+
+  def _clear_error(self) -> None:
+    self._error_message = ""
+    self.error_display.configure(text=self._error_message)
+
+  def _delete_last_character(self) -> None:    
+    if not self._expression:
+      return
+    
+    self._expression = self._expression[:-1]
+    self._update_display("expression")
 
 
   def _calculate(self) -> None:
@@ -315,21 +454,6 @@ class GUI(CT.CTk):
     self._expression = self._result
     self._update_display("result")
 
-  def _clear(self) -> None:
-    self._expression = ""
-    self._result = ""
-    self._update_display("expression")
-
-  def _clear_error(self) -> None:
-    self._error_message = ""
-    self.error_display.configure(text=self._error_message)
-
-  def _delete_last_character(self) -> None:    
-    if not self._expression:
-      return
-    
-    self._expression = self._expression[:-1]
-    self._update_display("expression")
 
   def _input_decimal(self) -> None:
     if not self._expression:
@@ -352,6 +476,7 @@ class GUI(CT.CTk):
     self._expression += parenthesis
     self._update_display("expression")
 
+
   def _input_number(self, value: str) -> None:
     self._expression += value
     self._last_number = value
@@ -368,6 +493,8 @@ class GUI(CT.CTk):
     self._last_operation = operator
     self._update_display("expression")
 
+
+  #     ---- update display utility
 
   def _show_error(self, message: str) -> None:
     self._error_message = message
@@ -400,3 +527,5 @@ class GUI(CT.CTk):
       )
 
     self.main_display.configure(state="readonly")
+
+  #     ----
