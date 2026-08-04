@@ -53,12 +53,13 @@ class GUI(CT.CTk):
     self.calculator_buttons: dict[str, CT.CTkButton] = {}
 
     self._expression: str = ""
-    self._last_expression: str = ""
-    self._last_number: str = ""
-    self._last_operation: str = ""
-    
     self._result: str = ""
     self._error_message: str = ""
+
+    self._has_done_btn_click: bool = False
+    self._has_error: bool = False
+    self._last_number: str = ""
+    self._last_operation: str = ""    
 
 
   def _setup_window(self) -> None:
@@ -382,17 +383,20 @@ class GUI(CT.CTk):
     # utility button - - - - -
         
     if btn_text == "C":
+      self._has_done_btn_click = True
       self._clear()
     
     if btn_text == "DEL":
+      self._has_done_btn_click = True
       self._delete_last_character()
-
+    
     if btn_text == "=":
       self._calculate()
+      self._has_done_btn_click = False
 
 
     # input button - - - - -
-    
+
     try:
       Validator.validate_expression_length(
         expression=self._expression,
@@ -402,18 +406,21 @@ class GUI(CT.CTk):
     except Exception as e:
       self._show_error(str(e))
       return
-
-
+    
     if btn_text == ".":
+      self._has_done_btn_click = True
       self._input_decimal()
 
     if btn_text in {"(", ")"}:
+      self._has_done_btn_click = True
       self._input_parenthesis(btn_text)
 
     if btn_text in self._NUMBERS:
+      self._has_done_btn_click = True
       self._input_number(btn_text)
     
     if btn_text in self._OPERATORS:
+      self._has_done_btn_click = True
       self._input_operator(btn_text)
 
 
@@ -423,6 +430,11 @@ class GUI(CT.CTk):
   def _clear(self) -> None:
     self._expression = ""
     self._result = ""
+
+    self._last_number = ""
+    self._last_operation = ""
+
+    self._has_error = False
     self._update_display("expression")
 
   def _clear_error(self) -> None:
@@ -432,17 +444,38 @@ class GUI(CT.CTk):
   def _delete_last_character(self) -> None:    
     if not self._expression:
       return
+
+    if len(self._expression) == 1:
+      self._last_number = ""
+      self._last_operation = ""
     
+    if len(self._expression) >= 2:
+      self._handle_last_number()
+      self._handle_last_operation()
+
     self._expression = self._expression[:-1]
     self._update_display("expression")
 
 
   def _calculate(self) -> None:
-    if (
+    not_valid_to_calculate: bool = (
       not self._expression
       or self._expression[-1] not in self._NUMBERS | {")"}
-    ):
+    )
+    can_do_constant_chain_calculation: bool = (
+      len(self._expression) < self._MAX_EXPRESSION_LENGTH
+      and not self._has_done_btn_click
+      and not self._has_error
+      and self._last_number != ""
+      and self._last_operation != ""
+    )
+
+    if not_valid_to_calculate:
       return
+
+    if can_do_constant_chain_calculation:
+      self._expression += self._last_operation
+      self._expression += self._last_number
 
     try:
       self._result = Calculator.calculate(expression=self._expression)
@@ -450,7 +483,6 @@ class GUI(CT.CTk):
       self._show_error(str(e))
       return
 
-    self._last_expression = self._expression
     self._expression = self._result
     self._update_display("result")
 
@@ -479,7 +511,7 @@ class GUI(CT.CTk):
 
   def _input_number(self, value: str) -> None:
     self._expression += value
-    self._last_number = value
+    self._handle_last_number()
     self._update_display("expression")
   
   def _input_operator(self, operator: str) -> None:
@@ -490,7 +522,7 @@ class GUI(CT.CTk):
         return
     
     self._expression += operator
-    self._last_operation = operator
+    self._handle_last_operation()
     self._update_display("expression")
 
 
@@ -498,6 +530,7 @@ class GUI(CT.CTk):
 
   def _show_error(self, message: str) -> None:
     self._error_message = message
+    self._has_error = True
     self._update_display("error")
   
   def _update_display(self, usage: str) -> None:
@@ -529,3 +562,37 @@ class GUI(CT.CTk):
     self.main_display.configure(state="readonly")
 
   #     ----
+
+
+  #     ---- handle last input
+
+  def _handle_last_number(self) -> None:
+    if not self._expression:
+      return
+    
+    self._last_number = ""
+    last_number_reversed: str = ""
+    expression_reversed: str = self._expression[::-1]
+
+    for char in expression_reversed:
+      if char in self._OPERATORS or char in self._PARENTHESES:
+        break
+      elif char in self._NUMBERS or char == ".":
+        last_number_reversed += char
+
+    if last_number_reversed:
+      self._last_number = last_number_reversed[::-1]
+
+  def _handle_last_operation(self) -> None:
+    if not self._expression:
+      return
+    
+    self._last_operation = ""
+    expression_reversed: str = self._expression[::-1]
+
+    for char in expression_reversed:
+      if char in self._OPERATORS:
+        self._last_operation = char
+        break
+
+  #     -----
