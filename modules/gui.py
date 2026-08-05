@@ -50,7 +50,7 @@ class GUI(CT.CTk):
 
     # variables set up - - - - - - - - - -
     self._current_theme = self._THEME["dark_theme"]
-    self.calculator_buttons: dict[str, CT.CTkButton] = {}
+    self._calculator_buttons: dict[str, CT.CTkButton] = {}
 
     self._expression: str = ""
     self._result: str = ""
@@ -71,13 +71,13 @@ class GUI(CT.CTk):
 
 
   def _create_frames(self) -> None:
-    self.display_frame: CT.CTkFrame = CT.CTkFrame(
+    self._display_frame: CT.CTkFrame = CT.CTkFrame(
       master=self,
       fg_color=self._current_theme["bg"],
       border_color=self._current_theme["bg"]
     )
 
-    self.btn_frame: CT.CTkFrame = CT.CTkFrame(
+    self._btn_frame: CT.CTkFrame = CT.CTkFrame(
       master=self,
       fg_color=self._current_theme["bg"],
       border_color=self._current_theme["bg"]
@@ -92,8 +92,8 @@ class GUI(CT.CTk):
 
   def _bind_events(self) -> None:
     # bind mouse scroll
-    self.main_display.bind("<Button-4>", self._scroll_display)
-    self.main_display.bind("<Button-5>", self._scroll_display)
+    self._main_display.bind("<Button-4>", self._scroll_display)
+    self._main_display.bind("<Button-5>", self._scroll_display)
 
 
     # bind utility keys
@@ -130,8 +130,8 @@ class GUI(CT.CTk):
   # -- create_widget() - - - - - - - - - -
 
   def _create_display(self) -> None:
-    self.main_display = CT.CTkEntry(
-      master=self.display_frame,
+    self._main_display = CT.CTkEntry(
+      master=self._display_frame,
       state="readonly",
       justify="right",
       font=("Arial", 20),
@@ -140,8 +140,8 @@ class GUI(CT.CTk):
       border_color=self._current_theme["bg"]
     )
 
-    self.error_display = CT.CTkLabel(
-      master=self.display_frame,
+    self._error_display = CT.CTkLabel(
+      master=self._display_frame,
       text=self._error_message,
       anchor="w",
       justify="left",
@@ -164,19 +164,19 @@ class GUI(CT.CTk):
     self.grid_columnconfigure(0, weight=1)
 
     # display frame layout
-    self.display_frame.grid_rowconfigure(0, weight=1)
-    self.display_frame.grid_rowconfigure(1, weight=0)
-    self.display_frame.grid_rowconfigure(2, weight=1)
-    self.display_frame.grid_columnconfigure(0, weight=1)
+    self._display_frame.grid_rowconfigure(0, weight=1)
+    self._display_frame.grid_rowconfigure(1, weight=0)
+    self._display_frame.grid_rowconfigure(2, weight=1)
+    self._display_frame.grid_columnconfigure(0, weight=1)
     
-    self.display_frame.grid(
+    self._display_frame.grid(
       row=0, 
       column=0,
       sticky="nsew"
     )
     
     # display layout
-    self.main_display.grid(
+    self._main_display.grid(
       row=0,
       column=0, 
       padx=4, 
@@ -184,7 +184,7 @@ class GUI(CT.CTk):
       sticky="nsew"
     )
 
-    self.error_display.grid(
+    self._error_display.grid(
       row=1,
       column=0,
       padx=8,
@@ -192,7 +192,7 @@ class GUI(CT.CTk):
       sticky="nsew"
     )
 
-    self.theme_selector.grid(
+    self._theme_selector.grid(
       row=2,
       column=0,
       padx=4, 
@@ -201,17 +201,17 @@ class GUI(CT.CTk):
     )
     
     # button frame layout
-    self.btn_frame.grid(
+    self._btn_frame.grid(
       row=1, 
       column=0, 
       sticky="nsew"
     )
 
     for row in range(len(self._BTN_TEXTS)):
-      self.btn_frame.grid_rowconfigure(row, weight=1)
+      self._btn_frame.grid_rowconfigure(row, weight=1)
 
     for column in range(len(self._BTN_TEXTS[0])):
-      self.btn_frame.grid_columnconfigure(column, weight=1)
+      self._btn_frame.grid_columnconfigure(column, weight=1)
 
 
 
@@ -219,8 +219,8 @@ class GUI(CT.CTk):
 
 
   def _create_theme_selector(self) -> None:
-    self.theme_selector = CT.CTkSegmentedButton(
-      master=self.display_frame,
+    self._theme_selector = CT.CTkSegmentedButton(
+      master=self._display_frame,
       values=["Light", "Dark"],
       command=self._on_theme_changed,
       font=("Arial", 12),
@@ -232,7 +232,7 @@ class GUI(CT.CTk):
       unselected_hover_color=self._current_theme["button_hover"]
     )
 
-    self.theme_selector.set(value="Dark")
+    self._theme_selector.set(value="Dark")
 
   #     ---- theme utility
 
@@ -248,26 +248,26 @@ class GUI(CT.CTk):
   def _update_theme(self) -> None:
     self.configure(bg=self._current_theme["bg"])
 
-    self.display_frame.configure(
+    self._display_frame.configure(
       fg_color=self._current_theme["bg"],
       border_color=self._current_theme["bg"]
     )
-    self.btn_frame.configure(
+    self._btn_frame.configure(
       fg_color=self._current_theme["bg"],
       border_color=self._current_theme["bg"]
     )
 
-    self.main_display.configure(
+    self._main_display.configure(
       text_color=self._current_theme["font_color"],
       fg_color=self._current_theme["bg"],
       border_color=self._current_theme["bg"]
     )
-    self.error_display.configure(
+    self._error_display.configure(
       text_color=self._current_theme["error_color"],
       fg_color=self._current_theme["bg"]
     )
 
-    self.theme_selector.configure(
+    self._theme_selector.configure(
       text_color=self._current_theme["font_color"],
       fg_color=self._current_theme["button_bg"],
       selected_color=self._current_theme["accent"],
@@ -276,7 +276,7 @@ class GUI(CT.CTk):
       unselected_hover_color=self._current_theme["button_hover"]
     )
 
-    for btn_text, button in self.calculator_buttons.items():
+    for btn_text, button in self._calculator_buttons.items():
       btn_color: dict[str, str] = self._get_button_color(btn_text)
 
       button.configure(
@@ -317,7 +317,7 @@ class GUI(CT.CTk):
         btn_color: dict[str, str] = self._get_button_color(btn_text)
 
         button: CT.CTkButton = CT.CTkButton(
-          master=self.btn_frame,
+          master=self._btn_frame,
           command=lambda text=btn_text: 
             self._on_button_click(text),
           width=50,
@@ -365,7 +365,7 @@ class GUI(CT.CTk):
             sticky="nsew"
           )
 
-        self.calculator_buttons[btn_text] = button
+        self._calculator_buttons[btn_text] = button
 
 
 
@@ -373,9 +373,9 @@ class GUI(CT.CTk):
 
   def _scroll_display(self, event) -> None:
     if event.num == 4:
-        self.main_display.xview_scroll(-1, "units")
+        self._main_display.xview_scroll(-1, "units")
     elif event.num == 5:
-        self.main_display.xview_scroll(1, "units")
+        self._main_display.xview_scroll(1, "units")
 
   def _on_button_click(self, btn_text: str) -> None:
     self._clear_error()
@@ -439,7 +439,7 @@ class GUI(CT.CTk):
 
   def _clear_error(self) -> None:
     self._error_message = ""
-    self.error_display.configure(text=self._error_message)
+    self._error_display.configure(text=self._error_message)
 
   def _delete_last_character(self) -> None:    
     if not self._expression:
@@ -535,31 +535,31 @@ class GUI(CT.CTk):
   
   def _update_display(self, usage: str) -> None:
     if usage == "error":
-      self.error_display.configure(text=self._error_message)
+      self._error_display.configure(text=self._error_message)
       self.after(10000, self._clear_error)
       return
 
-    self.main_display.configure(state="normal")
-    self.main_display.delete(0, "end")
+    self._main_display.configure(state="normal")
+    self._main_display.delete(0, "end")
 
     if usage == "expression":
-      self.main_display.insert(0, self._expression)
-      self.main_display.icursor("end")
-      self.main_display.xview_moveto(1.0)
-      self.main_display.configure(
+      self._main_display.insert(0, self._expression)
+      self._main_display.icursor("end")
+      self._main_display.xview_moveto(1.0)
+      self._main_display.configure(
         justify="right",
         text_color=self._current_theme["font_color"]
       )
     elif usage == "result":
-      self.main_display.insert(0, self._result)
-      self.main_display.icursor("end")
-      self.main_display.xview_moveto(1.0)
-      self.main_display.configure(
+      self._main_display.insert(0, self._result)
+      self._main_display.icursor("end")
+      self._main_display.xview_moveto(1.0)
+      self._main_display.configure(
         justify="right",
         text_color=self._current_theme["font_color"]
       )
 
-    self.main_display.configure(state="readonly")
+    self._main_display.configure(state="readonly")
 
   #     ----
 
