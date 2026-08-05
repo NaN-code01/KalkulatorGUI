@@ -6,18 +6,22 @@ from .utils import Utility
 
 
 class OperatorInfo(TypedDict):
+  """Type definition describing an operator's precedence and associativity."""
   prec: int
   assoc: str
 
 
 class PathConstants:
+  """Store filesystem paths used throughout the application."""
   ROOT_DIR: Path = Path(__file__).resolve().parent.parent
   ASSETS_DIR: Path = ROOT_DIR / "assets"
   ICON_PATH: Path = ASSETS_DIR / "icon64.png"
   THEME_PATH: Path = ASSETS_DIR / "theme.json"
 
 
-class GlobalConstants:                      # called by:
+class GlobalConstants:
+  """Store shared constants used by multiple application modules."""
+                                            # called by:
   NUMBERS: set[str] = set("0123456789")     # gui
   OPERATORS: set[str] = set("+-*/^")        # gui validator
   UNARY_OPERATOR: set[str] = {"u+", "u-"}   #     validator
@@ -25,6 +29,7 @@ class GlobalConstants:                      # called by:
 
 
 class GuiConstants:
+  """Store constants for the graphical user interface, including window settings, themes, layouts, and input mappings."""
   TITLE: str = "KalkulatorGUI"
   ICON_PATH_STR: str = str(PathConstants.ICON_PATH)
 
@@ -58,6 +63,7 @@ class GuiConstants:
 
 
 class CalculatorConstants:
+  """Store constants required for expression tokenization and evaluation."""
   # Define token pattern for regex
   TOKEN_PATTERN = re.compile(
     r"""
@@ -88,6 +94,7 @@ class CalculatorConstants:
 
 
 class ValidatorConstants:
+  """Store constants used for expression validation and syntax checking."""
   ALLOWED_CHARS: set[str] = (
     GlobalConstants.NUMBERS 
     | GlobalConstants.OPERATORS 

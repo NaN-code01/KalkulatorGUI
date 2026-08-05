@@ -8,8 +8,14 @@ from .calculator import Calculator
 
 
 class GUI(CT.CTk):
+  """Main calculator application window.
+
+  Manages the user interface, user interactions, calculator state,
+  and communication with the validation and calculation modules.
+  """
 
   def __init__(self) -> None:
+    """Initialize the calculator GUI and all its components."""
     super().__init__()
     self._create_variables()
     self._setup_window()
@@ -21,6 +27,7 @@ class GUI(CT.CTk):
   # Initialize ------------------------------
 
   def _create_variables(self) -> None:
+    """Initialize constants, application state, and runtime variables."""
     # constants call for checking - - - - - - - - - -
     self._NUMBERS: set[str] = GlobalConstants.NUMBERS
     self._OPERATORS: set[str] = GlobalConstants.OPERATORS
@@ -59,10 +66,11 @@ class GUI(CT.CTk):
     self._has_done_btn_click: bool = False
     self._has_error: bool = False
     self._last_number: str = ""
-    self._last_operation: str = ""    
+    self._last_operation: str = ""
 
 
   def _setup_window(self) -> None:
+    """Configure the main window properties and appearance."""
     self.title(self._TITLE)
     self.iconphoto(True, self._ICON)
     self.configure(bg=self._current_theme["bg"])
@@ -71,6 +79,7 @@ class GUI(CT.CTk):
 
 
   def _create_frames(self) -> None:
+    """Create the main container frames for the display and buttons."""
     self._display_frame: CT.CTkFrame = CT.CTkFrame(
       master=self,
       fg_color=self._current_theme["bg"],
@@ -85,12 +94,14 @@ class GUI(CT.CTk):
 
 
   def _create_widgets(self) -> None:
+    """Create all widgets used by the calculator interface."""
     self._create_display()
     self._create_buttons()
     self._create_layout()
 
 
   def _bind_events(self) -> None:
+    """Bind keyboard and mouse events to their corresponding handlers."""
     # bind mouse scroll
     self._main_display.bind("<Button-4>", self._scroll_display)
     self._main_display.bind("<Button-5>", self._scroll_display)
@@ -130,6 +141,7 @@ class GUI(CT.CTk):
   # -- create_widget() - - - - - - - - - -
 
   def _create_display(self) -> None:
+    """Create the calculator display and error message widgets."""
     self._main_display = CT.CTkEntry(
       master=self._display_frame,
       state="readonly",
@@ -153,11 +165,13 @@ class GUI(CT.CTk):
 
 
   def _create_buttons(self) -> None:
+    """Create the calculator buttons and theme selector."""
     self._create_calculator_buttons()
     self._create_theme_selector()
 
 
   def _create_layout(self) -> None:
+    """Arrange all frames and widgets using the grid layout."""
     # window layout
     self.grid_rowconfigure(0, weight=5)
     self.grid_rowconfigure(1, weight=5)
@@ -219,6 +233,7 @@ class GUI(CT.CTk):
 
 
   def _create_theme_selector(self) -> None:
+    """Create the light and dark theme selector."""
     self._theme_selector = CT.CTkSegmentedButton(
       master=self._display_frame,
       values=["Light", "Dark"],
@@ -237,15 +252,18 @@ class GUI(CT.CTk):
   #     ---- theme utility
 
   def _on_theme_changed(self, value: str) -> None:
+    """Handle theme selection changes."""
     match value:
       case "Light": self._set_theme("light_theme")
       case "Dark": self._set_theme("dark_theme")
 
   def _set_theme(self, theme_name: str) -> None:
+    """Apply the specified theme and refresh the interface."""
     self._current_theme = self._THEME[theme_name]
     self._update_theme()
 
   def _update_theme(self) -> None:
+    """Update widget colors to match the active theme."""
     self.configure(bg=self._current_theme["bg"])
 
     self._display_frame.configure(
@@ -286,6 +304,7 @@ class GUI(CT.CTk):
       )
 
   def _get_button_color(self, btn_text: str) -> dict[str, str]:
+    """Return the foreground and hover colors for a button."""
     btn_color: dict[str, str] = {}
 
     if btn_text in self._OPERATORS or btn_text in self._PARENTHESES:
@@ -309,6 +328,7 @@ class GUI(CT.CTk):
 
 
   def _create_calculator_buttons(self) -> None:
+    """Create and position all calculator buttons."""
     for r, row in enumerate(self._BTN_TEXTS):
       for c, btn_text in enumerate(row):
         if btn_text == "":
@@ -372,19 +392,21 @@ class GUI(CT.CTk):
   # -- bind_events() - - - - - - - - - -
 
   def _scroll_display(self, event) -> None:
+    """Scroll the display horizontally using the mouse wheel."""
     if event.num == 4:
         self._main_display.xview_scroll(-1, "units")
     elif event.num == 5:
         self._main_display.xview_scroll(1, "units")
 
   def _on_button_click(self, btn_text: str) -> None:
+    """Handle calculator button presses and dispatch the appropriate action."""
     self._clear_error()
 
     # utility button - - - - -
         
     if btn_text == "C":
-      self._has_done_btn_click = True
       self._clear()
+      self._has_done_btn_click = False
     
     if btn_text == "DEL":
       self._has_done_btn_click = True
@@ -428,6 +450,7 @@ class GUI(CT.CTk):
 # ---- on_button_click() -  -  -  -  -
 
   def _clear(self) -> None:
+    """Reset the calculator state and clear the display."""
     self._expression = ""
     self._result = ""
 
@@ -438,10 +461,12 @@ class GUI(CT.CTk):
     self._update_display("expression")
 
   def _clear_error(self) -> None:
+    """Clear the current error message."""
     self._error_message = ""
     self._error_display.configure(text=self._error_message)
 
-  def _delete_last_character(self) -> None:    
+  def _delete_last_character(self) -> None:
+    """Remove the last character from the current expression."""
     if not self._expression:
       return
 
@@ -458,10 +483,12 @@ class GUI(CT.CTk):
 
 
   def _calculate(self) -> None:
+    """Evaluate the current expression and display the result."""
     not_valid_to_calculate: bool = (
       not self._expression
       or self._expression[-1] not in self._NUMBERS | {")"}
     )
+
     can_do_constant_chain_calculation: bool = (
       len(self._expression) < self._MAX_EXPRESSION_LENGTH
       and not self._has_done_btn_click
@@ -488,6 +515,7 @@ class GUI(CT.CTk):
 
 
   def _input_decimal(self) -> None:
+    """Append a decimal point when the current input is valid."""
     if not self._expression:
       return
 
@@ -496,6 +524,7 @@ class GUI(CT.CTk):
       self._update_display("expression")
 
   def _input_parenthesis(self, parenthesis: str) -> None:
+    """Append a parenthesis if it produces a valid expression."""
     if self._expression and self._expression[-1] == ".":
       return
 
@@ -510,11 +539,13 @@ class GUI(CT.CTk):
 
 
   def _input_number(self, value: str) -> None:
+    """Append a numeric digit to the current expression."""
     self._expression += value
     self._handle_last_number()
     self._update_display("expression")
   
   def _input_operator(self, operator: str) -> None:
+    """Append an operator to the current expression when valid."""
     if operator not in {"+", "-"}:
       if not self._expression:
         return
@@ -529,11 +560,13 @@ class GUI(CT.CTk):
   #     ---- update display utility
 
   def _show_error(self, message: str) -> None:
+    """Display an error message and mark the calculator as being in an error state."""
     self._error_message = message
     self._has_error = True
     self._update_display("error")
   
   def _update_display(self, usage: str) -> None:
+    """Update the expression, result, or error display."""
     if usage == "error":
       self._error_display.configure(text=self._error_message)
       self.after(10000, self._clear_error)
@@ -567,6 +600,7 @@ class GUI(CT.CTk):
   #     ---- handle last input
 
   def _handle_last_number(self) -> None:
+    """Extract and store the most recent numeric operand from the expression."""
     if not self._expression:
       return
     
@@ -584,6 +618,7 @@ class GUI(CT.CTk):
       self._last_number = last_number_reversed[::-1]
 
   def _handle_last_operation(self) -> None:
+    """Extract and store the most recent operator from the expression."""
     if not self._expression:
       return
     
