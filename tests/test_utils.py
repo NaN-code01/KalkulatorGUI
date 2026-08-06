@@ -22,18 +22,18 @@ def test_validate_and_load_json_success(tmp_path):
     encoding="utf-8"
   )
 
-  result = Utility.validate_and_load_json(str(json_file))
+  result = Utility.validate_and_load_json(file_path=str(json_file))
   assert result == data
 
 def test_validate_and_load_json_file_not_found():
   """Verify that a missing JSON file raises FileNotFoundError."""
-  file_path = "does_not_exist.json"
+  not_existing_path = "does_not_exist.json"
 
   with pytest.raises(
     FileNotFoundError,
     match=r"Error: The file at does_not_exist\.json was not found\."
   ):
-    Utility.validate_and_load_json(file_path)
+    Utility.validate_and_load_json(file_path=not_existing_path)
 
 @pytest.mark.parametrize("content", [
   '{"a":}',
@@ -49,7 +49,7 @@ def test_validate_and_load_json_invalid_json(tmp_path, content):
     ValueError,
     match=r"Compatibility Error: Invalid JSON syntax\."
   ):
-    Utility.validate_and_load_json(str(invalid_json_file))
+    Utility.validate_and_load_json(file_path=str(invalid_json_file))
 
 
 # Test validate_is_number() ------------------------------
