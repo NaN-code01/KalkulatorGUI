@@ -8,6 +8,7 @@ from modules.utils import Utility
 # Test validate_and_load_json() ------------------------------
 
 def test_validate_and_load_json_success(tmp_path):
+  """Verify that a valid JSON file is loaded correctly."""
   data = {
     "word": "hello",
     "number": 17,
@@ -25,13 +26,14 @@ def test_validate_and_load_json_success(tmp_path):
   assert result == data
 
 def test_validate_and_load_json_file_not_found():
-    file_path = "does_not_exist.json"
+  """Verify that a missing JSON file raises FileNotFoundError."""
+  file_path = "does_not_exist.json"
 
-    with pytest.raises(
-        FileNotFoundError,
-        match=r"Error: The file at does_not_exist\.json was not found\."
-    ):
-      Utility.validate_and_load_json(file_path)
+  with pytest.raises(
+    FileNotFoundError,
+    match=r"Error: The file at does_not_exist\.json was not found\."
+  ):
+    Utility.validate_and_load_json(file_path)
 
 @pytest.mark.parametrize("content", [
   '{"a":}',
@@ -39,6 +41,7 @@ def test_validate_and_load_json_file_not_found():
   '{"word":"Hello",}',
 ])
 def test_validate_and_load_json_invalid_json(tmp_path, content):
+  """Verify that malformed JSON raises ValueError."""
   invalid_json_file = tmp_path / "invalid.json"
   invalid_json_file.write_text(content, encoding="utf-8")
 
@@ -80,4 +83,5 @@ def test_validate_and_load_json_invalid_json(tmp_path, content):
   ("a", False),
 ])
 def test_is_number(token, expected):
+  """Verify that numeric and non-numeric tokens are identified correctly."""
   assert Utility.is_number(token) == expected
