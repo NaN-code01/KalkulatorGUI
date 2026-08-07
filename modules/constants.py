@@ -6,7 +6,10 @@ from .utils import Utility
 
 
 class OperatorInfo(TypedDict):
-  """Type definition describing an operator's precedence and associativity."""
+  """Type definition describing an operator's precedence
+     and associativity.
+  """
+  
   prec: int
   assoc: str
 
@@ -29,7 +32,10 @@ class GlobalConstants:
 
 
 class GuiConstants:
-  """Store constants for the graphical user interface, including window settings, themes, layouts, and input mappings."""
+  """Store constants for the graphical user interface,
+     including window settings, themes, layouts, and input mappings.
+  """
+
   TITLE: str = "KalkulatorGUI"
   ICON_PATH_STR: str = str(PathConstants.ICON_PATH)
 
@@ -63,7 +69,10 @@ class GuiConstants:
 
 
 class CalculatorConstants:
-  """Store constants required for expression tokenization and evaluation."""
+  """Store constants required for expression tokenization
+     and evaluation.
+  """
+
   # Define token pattern for regex
   TOKEN_PATTERN = re.compile(
     r"""
@@ -74,7 +83,8 @@ class CalculatorConstants:
     re.VERBOSE
   )
 
-  # Define operator precedence and associativity: "L" for Left, "R" for Right
+  # Define operator precedence and associativity:
+  # "L" for Left, "R" for Right
   OPERATOR_INFO: dict[str, OperatorInfo] = {
     "+": {"prec": 1, "assoc": "L"},
     "-": {"prec": 1, "assoc": "L"},
@@ -94,7 +104,10 @@ class CalculatorConstants:
 
 
 class ValidatorConstants:
-  """Store constants used for expression validation and syntax checking."""
+  """Store constants used for expression validation
+     and syntax checking.
+  """
+
   ALLOWED_CHARS: set[str] = (
     GlobalConstants.NUMBERS 
     | GlobalConstants.OPERATORS 

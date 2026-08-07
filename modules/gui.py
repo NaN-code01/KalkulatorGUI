@@ -27,7 +27,10 @@ class GUI(CT.CTk):
   # Initialize ------------------------------
 
   def _create_variables(self) -> None:
-    """Initialize constants, application state, and runtime variables."""
+    """Initialize constants, application state,
+       and runtime variables.
+    """
+
     # constants call for checking - - - - - - - - - -
     self._NUMBERS: set[str] = GlobalConstants.NUMBERS
     self._OPERATORS: set[str] = GlobalConstants.OPERATORS
@@ -101,7 +104,10 @@ class GUI(CT.CTk):
 
 
   def _bind_events(self) -> None:
-    """Bind keyboard and mouse events to their corresponding handlers."""
+    """Bind keyboard and mouse events
+       to their corresponding handlers.
+    """
+
     # bind mouse scroll
     self._main_display.bind("<Button-4>", self._scroll_display)
     self._main_display.bind("<Button-5>", self._scroll_display)
@@ -399,7 +405,10 @@ class GUI(CT.CTk):
         self._main_display.xview_scroll(1, "units")
 
   def _on_button_click(self, btn_text: str) -> None:
-    """Handle calculator button presses and dispatch the appropriate action."""
+    """Handle calculator button presses
+       and dispatch the appropriate action.
+    """
+
     self._clear_error()
 
     # utility button - - - - -
@@ -560,7 +569,10 @@ class GUI(CT.CTk):
   #     ---- update display utility
 
   def _show_error(self, message: str) -> None:
-    """Display an error message and mark the calculator as being in an error state."""
+    """Display an error message and mark the calculator
+       as being in an error state.
+    """
+
     self._error_message = message
     self._has_error = True
     self._update_display("error")
@@ -600,7 +612,10 @@ class GUI(CT.CTk):
   #     ---- handle last input
 
   def _handle_last_number(self) -> None:
-    """Extract and store the most recent numeric operand from the expression."""
+    """Extract and store the most recent
+       numeric operand from the expression.
+    """
+
     if not self._expression:
       return
     
@@ -618,7 +633,10 @@ class GUI(CT.CTk):
       self._last_number = last_number_reversed[::-1]
 
   def _handle_last_operation(self) -> None:
-    """Extract and store the most recent operator from the expression."""
+    """Extract and store the most recent
+       operator from the expression.
+    """
+
     if not self._expression:
       return
     

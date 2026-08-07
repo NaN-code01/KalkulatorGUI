@@ -6,10 +6,12 @@ from .validator import Validator
 
 
 class Calculator:
-  """Evaluate mathematical expressions using the Shunting Yard algorithm.
+  """Evaluate mathematical expressions
+     using the Shunting Yard algorithm.
 
-  Expressions are converted from infix notation to postfix notation before
-  being evaluated. Input validation is delegated to the Validator class.
+  Expressions are converted from infix notation to postfix notation
+  before being evaluated. Input validation is delegated to the 
+  Validator class.
   """
 
   # constants call - - - - - - - - - -
@@ -23,8 +25,9 @@ class Calculator:
   def calculate(cls, expression: str) -> str:
     """Evaluate an arithmetic expression.
 
-    The expression is validated, tokenized, converted to postfix notation,
-    and evaluated. The result is returned as a formatted string.
+    The expression is validated, tokenized, converted
+    to postfix notation, and evaluated. The result is
+    returned as a formatted string.
 
     Args:
       expression: The arithmetic expression in infix notation.
@@ -45,7 +48,9 @@ class Calculator:
     Validator.tokens_lexical_check(tokens=tokens, expression=expression)
 
     tokens_with_unary: list[str] = cls._normalize_unary_operators(tokens)
-    tokens_with_mult: list[str] = cls._insert_implicit_multiplication(tokens_with_unary)
+    tokens_with_mult: list[str] = cls._insert_implicit_multiplication(
+                                    tokens_with_unary)
+    
     Validator.validate_tokens(tokens=tokens_with_mult)
 
     postfix: list[str] = cls._infix_to_postfix(tokens_with_mult)
@@ -83,14 +88,17 @@ class Calculator:
     
   @classmethod
   def _insert_implicit_multiplication(cls, tokens: list[str]) -> list[str]:
-    """Insert '*' where multiplication is implied. (parenthesis multipication)"""
+    """Insert '*' where multiplication is implied.
+       (parenthesis/implicit multipication)
+    """
+
     result: list[str] = []
 
     for token in tokens:
       if result:
         prev: str = result[-1]
 
-        # when a value is followed by another value or an opening parenthesis
+        # value is followed by another value or an opening parenthesis
         prev_is_value: bool = Utility.is_number(prev) or prev == ")"
         curr_is_value: bool = Utility.is_number(token) or token == "("
 
@@ -105,7 +113,9 @@ class Calculator:
   
   @classmethod
   def _infix_to_postfix(cls, tokens: list[str]) -> list[str]:
-    """Convert infix tokens to postfix notation using the Shunting Yard algorithm."""
+    """Convert infix tokens to postfix notation
+       using the Shunting Yard algorithm.
+    """
     operators = cls._OPERATORS
     operator_stack: list[str] = []
     output_queue: list[str] = []
@@ -145,7 +155,9 @@ class Calculator:
       operator_stack: list[str], 
       output_queue: list[str]
     ) -> None:
-    """Pop operators until the matching opening parenthesis is reached."""
+    """Pop operators until the matching
+       opening parenthesis is reached.
+    """
 
     while operator_stack and operator_stack[-1] != "(":
       output_queue.append(operator_stack.pop())
@@ -160,7 +172,9 @@ class Calculator:
       operator_stack: list[str], 
       output_queue: list[str]
     ) -> None:
-    """Process an operator token according to precedence and associativity rules."""
+    """Process an operator token according to
+       precedence and associativity rules.
+    """
 
     while operator_stack and operator_stack[-1] != "(":
       if not cls._should_pop(token, operator_stack[-1]):
@@ -172,7 +186,10 @@ class Calculator:
   
   @classmethod
   def _should_pop(cls, incoming: str, stack_top: str) -> bool:
-    """Determine whether the top operator should be popped before pushing another."""
+    """Determine whether the top operator
+       should be popped before pushing another.
+    """
+
     incoming_prec = cls._OPERATORS[incoming]["prec"]
     incoming_assoc = cls._OPERATORS[incoming]["assoc"]
     stack_prec = cls._OPERATORS[stack_top]["prec"]
@@ -186,7 +203,10 @@ class Calculator:
   
   @classmethod
   def _evaluate_postfix(cls, postfix: list[str]) -> str:
-    """Evaluate a postfix expression and return the formatted result."""
+    """Evaluate a postfix expression
+       and return the formatted result.
+    """
+
     stack: list[float] = []
     
     for token in postfix:
@@ -203,11 +223,11 @@ class Calculator:
     
     result: float = stack.pop()
 
-    # return formatted integer string if the float value is close to rounded int
+    # return formatted integer if the float is close to rounded int
     if math.isclose(result, round(result)):
       return str(int(round(result)))
     
-    # return formatted float string with up to 9 significant digits
+    # return formatted float with up to 9 significant digits
     return f"{result:.9g}"
 
   # ---- evaluate_postfix() method utility (private) -  -  -  -  -

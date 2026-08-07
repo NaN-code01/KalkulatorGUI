@@ -8,9 +8,10 @@ class Utility:
   def validate_and_load_json(file_path: str) -> dict[str, Any]:
     """Load a JSON file and return its contents as a dictionary.
 
-    The file is opened using UTF-8 encoding to ensure consistent behavior
-    across operating systems. If the file cannot be found or contains
-    invalid JSON syntax, an appropriate exception is raised.
+    The file is opened using UTF-8 encoding to ensure
+    consistent behavior across operating systems.
+    If the file cannot be found or contains invalid JSON syntax,
+    an appropriate exception is raised.
 
     Args:
         file_path: Path to the JSON file.

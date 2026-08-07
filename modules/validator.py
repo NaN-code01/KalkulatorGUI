@@ -52,7 +52,8 @@ class Validator:
 
   @classmethod
   def tokens_lexical_check(cls, tokens: list[str], expression: str) -> bool:
-    """Verify that the generated tokens exactly reconstruct the expression.
+    """Verify that the generated tokens
+       exactly reconstruct the expression.
     
     Args:
       tokens: The list of expression tokens.
@@ -62,7 +63,8 @@ class Validator:
       True if combined tokens is exacly like the original expression.
 
     Raise:
-      VallueError: if combined token is ended up different from original expression.
+      VallueError: if combined token is ended up different
+                   from original expression.
     """
     
     if "".join(tokens) != expression:
@@ -171,7 +173,9 @@ class Validator:
   
   @classmethod
   def _compare_type(cls, prev_type: str, curr_type: str) -> bool:
-    """Return whether two consecutive token types form a valid sequence."""
+    """Return whether two consecutive token types
+       form a valid sequence.
+    """
     return curr_type in cls._VALID_TYPE_NEXT[prev_type]
   
 
@@ -190,7 +194,8 @@ class Validator:
       True if the expression length is less than the max length.
 
     Raises:
-      IndexError: If the expression length is more or equals to max length.
+      IndexError: If the expression length is more
+                  or equals to max length.
     """
 
     if len(expression) >= max_length:
@@ -207,7 +212,8 @@ class Validator:
 
     Args:
       operator: The operator of current evaluation.
-      divisor: The number that being used to divide (divide operation only).
+      divisor: The number that being used to divide
+               (divide operation only).
 
     Raises:
       ValueError: If the operator is unsuported.
@@ -224,7 +230,10 @@ class Validator:
   # -- validate_evaluation() method utility (private) - - - - - - - - - -  
   @classmethod
   def _operator_check(cls, operator: str) -> bool:
-    """Validate the operator and raise error when the operator is unsupported"""
+    """Validate the operator and raise error
+       when the operator is unsupported
+    """
+
     if operator not in cls._OPERATORS:
       raise ValueError(f"Unsupported operator: {operator}")
     
