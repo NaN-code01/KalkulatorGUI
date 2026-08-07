@@ -69,7 +69,7 @@ def test_tokens_lexical_check_invalid(tokens, expression):
     Validator.tokens_lexical_check(tokens, expression)
 
 
-
+# Test validate_tokens() ------------------------------
 
 @pytest.mark.parametrize("tokens", [
   (["0"]),
