@@ -19,10 +19,7 @@ def test_validate_expression_success(expression):
 def test_validate_expression_empty():
   empty_expression = ""
 
-  with pytest.raises(
-    ValueError,
-    match="Expression cannot be empty"
-  ):
+  with pytest.raises(ValueError, match="Expression cannot be empty"):
     Validator.validate_expression(expression=empty_expression)
 
 @pytest.mark.parametrize("invalid_expression", [
@@ -37,7 +34,7 @@ def test_validate_expression_empty():
 ])
 def test_validate_expression_invalid(invalid_expression):
   with pytest.raises(
-    ValueError,
+    ValueError, 
     match="Expression contain invalid character"
   ):
     Validator.validate_expression(expression=invalid_expression)
@@ -62,10 +59,7 @@ def test_tokens_lexical_check_success(tokens, expression):
   (["^", "4", ")"], "^)" ),
 ])
 def test_tokens_lexical_check_invalid(tokens, expression):
-  with pytest.raises(
-    ValueError,
-    match="Expression contain an invalid token"
-  ):
+  with pytest.raises(ValueError, match="Expression contain an invalid token"):
     Validator.tokens_lexical_check(tokens, expression)
 
 

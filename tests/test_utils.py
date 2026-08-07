@@ -83,5 +83,8 @@ def test_validate_and_load_json_invalid_json(tmp_path, content):
   ("a", False),
 ])
 def test_is_number(token, expected):
-  """Verify that numeric and non-numeric tokens are identified correctly."""
+  """Verify that numeric and non-numeric
+     tokens are identified correctly.
+  """
+  
   assert Utility.is_number(token) == expected
