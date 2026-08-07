@@ -40,3 +40,29 @@ def test_validate_expression_invalid(invalid_expression):
     match="Expression contain invalid character"
   ):
     Validator.validate_expression(expression=invalid_expression)
+
+
+# Test tokens_lexical_check() ------------------------------
+
+@pytest.mark.parametrize("tokens, expression", [
+  (["0"],           "0"  ),
+  (["1", "+"],      "1+" ),
+  (["2", "-", "3"], "2-3"),
+  (["*"],           "*"  ),
+  (["(", " ", "/"], "( /"),
+])
+def test_tokens_lexical_check_success(tokens, expression):
+  assert Validator.tokens_lexical_check(tokens, expression)
+
+@pytest.mark.parametrize("tokens, expression", [
+  (["0"],           "0 "  ),
+  (["1", "+"],      "1 +" ),
+  (["2", "3"],      "-23" ),
+  (["^", "4", ")"], "^)"  ),
+])
+def test_tokens_lexical_check_invalid(tokens, expression):
+  with pytest.raises(
+    ValueError,
+    match="Expression contain an invalid token"
+  ):
+    Validator.tokens_lexical_check(tokens, expression)
