@@ -1,4 +1,5 @@
 from .constants import ValidatorConstants, GlobalConstants
+from .utils import Utility
 
 
 class Validator:
@@ -155,7 +156,7 @@ class Validator:
   @classmethod
   def _token_type(cls, token: str) -> str:
     """Return the token category used during grammar validation."""
-    if token.replace(".", "", 1).isdigit():
+    if Utility.is_number(token=token):
       return "number"
     elif token in cls._OPERATORS:
       return "operator"
