@@ -74,7 +74,7 @@ def test_tokens_lexical_check_invalid(tokens, expression):
 @pytest.mark.parametrize("tokens", [
   (["0"]),
   (["1", "+", "2"]),
-  (["3", "-", "(", "4", "*", "5", ")", "/", "u-", "6"]),
+  (["3", "-", "(", "4", "*", "5", ")", "/", "u-", "6", "^", "7.8"]),
 ])
 def test_validate_tokens_success(tokens):
   assert Validator.validate_tokens(tokens)
@@ -87,3 +87,44 @@ def test_validate_tokens_success(tokens):
 def test_validate_tokens_failed(failed_tokens):
   with pytest.raises(ValueError):
     Validator.validate_tokens(tokens=failed_tokens)
+
+
+# Test _start_end_check() ------------------------------
+
+@pytest.mark.parametrize("invalid_tokens, error_message", [
+  ([],          "Token list is empty"                            ),
+  (["+"],       "Tokens cannot have an operator as a first token"),
+  ([")"],       "The first token contain invalid parenthesis"    ),
+  (["1", "+"],  "Tokens cannot have an operator as a last token" ),
+  (["1", "("],  "The last token contain invalid parenthesis"     ),
+  (["1", "u+"], "The last token contain unary operator"          ),
+])
+def test__start_end_check_invalid(invalid_tokens, error_message):
+  with pytest.raises(ValueError, match=error_message):
+    Validator._start_end_check(tokens=invalid_tokens)
+
+
+# Test _parentheses_check() ------------------------------
+
+@pytest.mark.parametrize("invalid_tokens, error_message", [
+  (["(", ")"],           "Tokens contain empty parentheses"),
+  (["(", "1", ")", ")"], "Tokens contain invalid parentheses"),
+  (["(", "(", "1", ")"], "Tokens contain invalid parentheses"),
+])
+def test__parentheses_check_invalid(invalid_tokens, error_message):
+  with pytest.raises(ValueError, match=error_message):
+    Validator._parentheses_check(tokens=invalid_tokens)
+
+
+# Test _grammar_check() ------------------------------
+
+@pytest.mark.parametrize("invalid_tokens", [
+  (["1", "u+"]),
+  (["+", ")"]),
+  (["(", "+"]),
+  ([")", "1"]),
+  (["u+", "+"]),
+])
+def test__grammar_check_invalid(invalid_tokens):
+  with pytest.raises(ValueError, match="Invalid token order"):
+    Validator._grammar_check(tokens=invalid_tokens)
