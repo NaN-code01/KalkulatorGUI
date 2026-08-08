@@ -166,3 +166,36 @@ def test__token_type_success(token, expected):
 def test__token_type_invalid(invalid_token):
   with pytest.raises(ValueError, match="Token typing is invalid"):
     Validator._token_type(token=invalid_token)
+
+
+# Test _compare_type() ------------------------------
+
+@pytest.mark.parametrize("prev_type, curr_type, expected", [
+ ("number", "operator", True),
+ ("number", "lparen", True),
+ ("number", "rparen", True),
+
+ ("operator", "number", True),
+ ("operator", "lparen", True),
+ ("operator", "unary", True),
+
+ ("lparen", "number", True),
+ ("lparen", "lparen", True),
+ ("lparen", "unary", True),
+
+ ("rparen", "operator", True),
+ ("rparen", "lparen", True),
+ ("rparen", "rparen", True),
+
+ ("unary", "number", True),
+ ("unary", "lparen", True),
+ ("unary", "unary", True),
+
+ ("number", "unary", False),
+ ("operator", "rparen", False),
+ ("lparen", "rparen", False),
+ ("rparen", "unary", False),
+ ("unary", "rparen", False),
+])
+def test__compare_type(prev_type, curr_type, expected):
+  assert Validator._compare_type(prev_type, curr_type) == expected 
