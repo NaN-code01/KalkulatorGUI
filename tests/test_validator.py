@@ -14,9 +14,11 @@ from modules.validator import Validator
   ("1.2+3-(4*0)/1^2"),
 ])
 def test_validate_expression_success(expression):
+  """Test that valid expressions pass character validation."""
   assert Validator.validate_expression(expression)
 
 def test_validate_expression_empty():
+  """Test that an empty expression raises a ValueError."""
   empty_expression = ""
 
   with pytest.raises(ValueError, match="Expression cannot be empty"):
@@ -33,6 +35,7 @@ def test_validate_expression_empty():
   ("1+1?"),
 ])
 def test_validate_expression_invalid(invalid_expression):
+  """Test that expressions containing unsupported characters are rejected."""
   with pytest.raises(
     ValueError, 
     match="Expression contains an invalid character"
@@ -49,6 +52,7 @@ def test_validate_expression_invalid(invalid_expression):
   (["*", "4.5", "(", ")"], "*4.5()"),
 ])
 def test_tokens_lexical_check_success(tokens, expression):
+  """Test that tokens correctly reconstruct the original expression."""
   assert Validator.tokens_lexical_check(tokens, expression)
 
 @pytest.mark.parametrize("tokens, expression", [
@@ -58,7 +62,11 @@ def test_tokens_lexical_check_success(tokens, expression):
   (["^", "4", ")"], "^)" ),
 ])
 def test_tokens_lexical_check_invalid(tokens, expression):
-  with pytest.raises(ValueError, match="Expression contains an invalid token"):
+  """Test that mismatched tokens and expressions are rejected."""
+  with pytest.raises(
+    ValueError, 
+    match="Expression contains an invalid token"
+  ):
     Validator.tokens_lexical_check(tokens, expression)
 
 
@@ -70,6 +78,7 @@ def test_tokens_lexical_check_invalid(tokens, expression):
   (["3", "-", "(", "4", "*", "5", ")", "/", "u-", "6", "^", "7.8"]),
 ])
 def test_validate_tokens_success(tokens):
+  """Test that valid token sequences pass all validation stages."""
   assert Validator.validate_tokens(tokens)
 
 @pytest.mark.parametrize("tokens", [
@@ -80,6 +89,7 @@ def test_validate_tokens_success(tokens):
   ["u-", "(", "1", "+", "2", ")"],
 ])
 def test_validate_tokens_unary_success(tokens):
+  """Test that valid unary operator sequences are accepted."""
   assert Validator.validate_tokens(tokens)
 
 @pytest.mark.parametrize("failed_tokens", [
@@ -88,6 +98,7 @@ def test_validate_tokens_unary_success(tokens):
   (["1", "u-", "*", "/", ")", "2.3"]),
 ])
 def test_validate_tokens_failed(failed_tokens):
+  """Test that invalid token sequences raise a ValueError."""
   with pytest.raises(ValueError):
     Validator.validate_tokens(tokens=failed_tokens)
 
@@ -102,6 +113,7 @@ def test_validate_tokens_failed(failed_tokens):
   ["u+", "(", "1", ")"],
 ])
 def test__start_end_check_success(tokens):
+  """Test that valid starting and ending tokens are accepted."""
   assert Validator._start_end_check(tokens)
 
 @pytest.mark.parametrize("invalid_tokens, error_message", [
@@ -113,6 +125,7 @@ def test__start_end_check_success(tokens):
   (["1", "u+"], "The last token contains an unary operator"      ),
 ])
 def test__start_end_check_invalid(invalid_tokens, error_message):
+  """Test that invalid starting or ending tokens are rejected."""
   with pytest.raises(ValueError, match=error_message):
     Validator._start_end_check(tokens=invalid_tokens)
 
@@ -127,6 +140,7 @@ def test__start_end_check_invalid(invalid_tokens, error_message):
   ["1", "+", "(", "2", "*", "3", ")"],
 ])
 def test__parentheses_check_success(tokens):
+  """Test that balanced and properly ordered parentheses are accepted."""
   assert Validator._parentheses_check(tokens)
 
 @pytest.mark.parametrize("invalid_tokens, error_message", [
@@ -135,6 +149,7 @@ def test__parentheses_check_success(tokens):
   (["(", "(", "1", ")"], "Tokens contains an invalid parentheses"),
 ])
 def test__parentheses_check_invalid(invalid_tokens, error_message):
+  """Test that invalid or unbalanced parentheses are rejected."""
   with pytest.raises(ValueError, match=error_message):
     Validator._parentheses_check(tokens=invalid_tokens)
 
@@ -149,6 +164,7 @@ def test__parentheses_check_invalid(invalid_tokens, error_message):
   (["u+", "+"]),
 ])
 def test__grammar_check_invalid(invalid_tokens):
+  """Test that invalid adjacent token types are rejected."""
   with pytest.raises(ValueError, match="Invalid token order"):
     Validator._grammar_check(tokens=invalid_tokens)
 
@@ -175,6 +191,7 @@ def test__grammar_check_invalid(invalid_tokens):
   ("u-", "unary"),
 ])
 def test__token_type_success(token, expected):
+  """Test that valid tokens are assigned the correct token type."""
   assert Validator._token_type(token) == expected
 
 @pytest.mark.parametrize("invalid_token", [
@@ -190,6 +207,7 @@ def test__token_type_success(token, expected):
   (">"),
 ])
 def test__token_type_invalid(invalid_token):
+  """Test that unsupported tokens raise a ValueError."""
   with pytest.raises(ValueError, match="Token typing is invalid"):
     Validator._token_type(token=invalid_token)
 
@@ -224,6 +242,7 @@ def test__token_type_invalid(invalid_token):
  ("unary", "rparen", False),
 ])
 def test__compare_type(prev_type, curr_type, expected):
+  """Test whether adjacent token types follow the grammar rules."""
   assert Validator._compare_type(prev_type, curr_type) == expected 
 
 
@@ -237,6 +256,7 @@ def test__compare_type(prev_type, curr_type, expected):
   ("123456789abcdefghij", 20),
 ])
 def test_validate_expression_length_success(expression, max_length):
+  """Test that expressions below the maximum length are accepted."""
   assert Validator.validate_expression_length(expression, max_length)
 
 @pytest.mark.parametrize("expression, max_length", [
@@ -246,6 +266,7 @@ def test_validate_expression_length_success(expression, max_length):
   ("123456789abcdefghij", 10),
 ])
 def test_validate_expression_length_max_exceed(expression, max_length):
+  """Test that expressions reaching or exceeding the limit are rejected."""
   with pytest.raises(
     IndexError, 
     match=(
@@ -270,6 +291,7 @@ def test_validate_expression_length_max_exceed(expression, max_length):
   ("^", 1.0),
 ])
 def test_validate_evaluation_success(operator, divisor):
+  """Test that supported operators and valid divisors are accepted."""
   assert Validator.validate_evaluation(operator, divisor)
 
 @pytest.mark.parametrize("unsupported_operator, divisor", [
@@ -285,6 +307,7 @@ def test_validate_evaluation_unsupported_operator(
   unsupported_operator, 
   divisor
 ):
+  """Test that unsupported operators raise a ValueError."""
   with pytest.raises(
     ValueError,
     match=f"Unsupported operator: {unsupported_operator}"
@@ -295,5 +318,6 @@ def test_validate_evaluation_unsupported_operator(
     )
 
 def test_validate_evaluation_zero_division():
+  """Test that division by zero raises a ZeroDivisionError."""
   with pytest.raises(ZeroDivisionError, match="Cannot divide by zero"):
     Validator.validate_evaluation(operator="/", divisor=0.0)
