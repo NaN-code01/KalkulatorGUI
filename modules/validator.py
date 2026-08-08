@@ -43,7 +43,7 @@ class Validator:
       raise ValueError("Expression cannot be empty")
 
     if not all(char in allowed_chars for char in expression):
-      raise ValueError("Expression contain invalid character")
+      raise ValueError("Expression contains an invalid character")
     
     return True
 
@@ -68,7 +68,7 @@ class Validator:
     """
     
     if "".join(tokens) != expression:
-      raise ValueError("Expression contain an invalid token")
+      raise ValueError("Expression contains an invalid token")
     
     return True
 
@@ -104,13 +104,13 @@ class Validator:
     if tokens[0] in cls._OPERATORS:
       raise ValueError("Tokens cannot have an operator as a first token")
     elif tokens[0] == ")":
-      raise ValueError("The first token contain invalid parenthesis")
+      raise ValueError("The first token contains an invalid parenthesis")
     elif tokens[-1] in cls._OPERATORS:
       raise ValueError("Tokens cannot have an operator as a last token")
     elif tokens[-1] == "(":
-      raise ValueError("The last token contain invalid parenthesis")
+      raise ValueError("The last token contains an invalid parenthesis")
     elif tokens[-1] in cls._UNARY_OPERATOR:
-      raise ValueError("The last token contain unary operator")
+      raise ValueError("The last token contains an unary operator")
         
     return True
 
@@ -128,14 +128,14 @@ class Validator:
         parentheses_count -= 1
       
       if parentheses_count < 0:
-        raise ValueError("Tokens contain invalid parentheses")
+        raise ValueError("Tokens contains an invalid parentheses")
       elif prev_token == "(" and token == ")":
-        raise ValueError("Tokens contain empty parentheses")
+        raise ValueError("Tokens has an empty parentheses")
       
       prev_token = token
     
     if parentheses_count != 0:
-      raise ValueError("Tokens contain invalid parentheses")
+      raise ValueError("Tokens contains an invalid parentheses")
     
     return True
 
@@ -201,7 +201,7 @@ class Validator:
     if len(expression) >= max_length:
       raise IndexError(
         f"Maximum length of {max_length} reached.\n"
-        f"Curent length: {len(expression)}"
+        f"Current length: {len(expression)}"
       )
 
     return True
