@@ -247,9 +247,15 @@ class Calculator:
         case _: result = float(0)
 
     except OverflowError:
-      raise ValueError(f"Numerical result out of range: {value2} {operator} {value1}")
+      raise ValueError(
+        f"Numerical result out of range:\n"
+        f"{value2} {operator} {value1}"
+      )
 
     if not math.isfinite(result):
-      raise ValueError(f"Numerical result out of range: {value2} {operator} {value1}")
+      raise ValueError(
+        f"Numerical result out of range:\n"
+        f"{value2} {operator} {value1}"
+      )
 
     return result

@@ -199,7 +199,10 @@ class Validator:
     """
 
     if len(expression) >= max_length:
-      raise IndexError(f"Expression reached maximum length: {max_length}")
+      raise IndexError(
+        f"Maximum length of {max_length} reached.\n"
+        f"Curent length: {len(expression)}"
+      )
 
     return True
 
