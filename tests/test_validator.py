@@ -228,3 +228,46 @@ def test_validate_expression_length_max_exceed(expression, max_length):
     )
   ):
     Validator.validate_expression_length(expression, max_length)
+
+
+# Test validate_evaluation() ------------------------------
+
+@pytest.mark.parametrize("operator, divisor", [
+  ("+", 0.0),
+  ("+", 1.0),
+  ("-", 0.0),
+  ("-", 1.0),
+  ("*", 0.0),
+  ("*", 1.0),
+  ("/", 1.0),
+  ("^", 0.0),
+  ("^", 1.0),
+])
+def test_validate_evaluation_success(operator, divisor):
+  assert Validator.validate_evaluation(operator, divisor)
+
+@pytest.mark.parametrize("unsuported_operator, divisor", [
+  ("", 1.0),
+  (" ", 1.0),
+  ("<", 1.0),
+  (">", 1.0),
+  ("%", 1.0),
+  ("&", 1.0),
+  ("!", 1.0),
+])
+def test_validate_evaluation_unsuported_operator(
+  unsuported_operator, 
+  divisor
+):
+  with pytest.raises(
+    ValueError,
+    match=f"Unsupported operator: {unsuported_operator}"
+  ):
+    Validator.validate_evaluation(
+      operator=unsuported_operator, 
+      divisor=divisor
+    )
+
+def test_validate_evaluation_zero_division():
+  with pytest.raises(ZeroDivisionError, match="Cannot divide by zero"):
+    Validator.validate_evaluation(operator="/", divisor=0.0)
