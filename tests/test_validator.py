@@ -122,3 +122,47 @@ def test__parentheses_check_invalid(invalid_tokens, error_message):
 def test__grammar_check_invalid(invalid_tokens):
   with pytest.raises(ValueError, match="Invalid token order"):
     Validator._grammar_check(tokens=invalid_tokens)
+
+
+# Test _token_type() ------------------------------
+
+@pytest.mark.parametrize("token, expected", [
+  ("0",   "number"),
+  ("1",   "number"),
+  ("2",   "number"),
+  ("3",   "number"),
+  ("4",   "number"),
+  ("5",   "number"),
+  ("6",   "number"),
+  ("7",   "number"),
+  ("8",   "number"),
+  ("9",   "number"),
+  ("1.1", "number"),
+  ("+",   "operator"),
+  ("-",   "operator"),
+  ("*",   "operator"),
+  ("/",   "operator"),
+  ("^",   "operator"),
+  ("(",   "lparen"),
+  (")",   "rparen"),
+  ("u+",  "unary"),
+  ("u-",  "unary"),
+])
+def test__token_type_success(token, expected):
+  assert Validator._token_type(token) == expected
+
+@pytest.mark.parametrize("invalid_token", [
+  (""),
+  (" "),
+  ("  "),
+  ("."),
+  (".."),
+  ("1.1.1"),
+  ("a"),
+  (","),
+  (":"),
+  (">"),
+])
+def test__token_type_invalid(invalid_token):
+  with pytest.raises(ValueError, match="Token typing is invalid"):
+    Validator._token_type(token=invalid_token)
