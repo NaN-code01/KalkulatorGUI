@@ -199,3 +199,32 @@ def test__token_type_invalid(invalid_token):
 ])
 def test__compare_type(prev_type, curr_type, expected):
   assert Validator._compare_type(prev_type, curr_type) == expected 
+
+
+# Test validate_expression_length() ------------------------------
+
+@pytest.mark.parametrize("expression, max_length", [
+  ("1", 2),
+  ("1", 200000),
+  ("123", 4),
+  ("123456789", 10),
+  ("123456789abcdefghij", 20),
+])
+def test_validate_expression_length_success(expression, max_length):
+  assert Validator.validate_expression_length(expression, max_length)
+
+@pytest.mark.parametrize("expression, max_length", [
+  ("", 0),
+  ("1", 0),
+  ("1234567890", 10),
+  ("123456789abcdefghij", 10),
+])
+def test_validate_expression_length_max_exceed(expression, max_length):
+  with pytest.raises(
+    IndexError, 
+    match=(
+      f"Maximum length of {max_length} reached.\n"
+      f"Curent length: {len(expression)}"
+    )
+  ):
+    Validator.validate_expression_length(expression, max_length)
