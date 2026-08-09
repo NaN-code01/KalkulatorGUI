@@ -53,3 +53,15 @@ def test__tokenize(expression, expected):
 ])
 def test__normalize_unary_operators(tokens, expected):
   assert Calculator._normalize_unary_operators(tokens) == expected
+
+
+# Test _insert_implicit_multiplication() ------------------------------
+
+@pytest.mark.parametrize("tokens, expected", [
+  (["1", "1"], ["1", "*", "1"]),
+  (["1", "(", "1", ")"], ["1", "*", "(", "1", ")"]),
+  (["(", "1", ")", "1"], ["(", "1", ")", "*", "1"]),
+  (["(", "1", ")", "(", "1", ")"], ["(", "1", ")", "*", "(", "1", ")"]),
+])
+def test__insert_implicit_multiplication(tokens, expected):
+  assert Calculator._insert_implicit_multiplication(tokens) == expected
