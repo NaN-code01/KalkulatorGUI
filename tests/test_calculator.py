@@ -32,11 +32,11 @@ def test_calculate_valueerror(invalid_expression):
 # Test _tokenize() ------------------------------
 
 @pytest.mark.parametrize("expression, expected", [
-  ("", []),
-  ("1+1", ["1", "+", "1"]),
+  ("",        []),
+  ("1+1",     ["1", "+", "1"]),
   ("1.1+1.1", ["1.1", "+", "1.1"]),
   (
-    "-1(1.1*1)/-1.1^(1)", 
+    "-1(1.1*1)/-1.1^(1)",
     ["-", "1", "(", "1.1", "*", "1", ")", "/", "-", "1.1", "^", "(", "1", ")"]
   ),
 ])
@@ -65,3 +65,90 @@ def test__normalize_unary_operators(tokens, expected):
 ])
 def test__insert_implicit_multiplication(tokens, expected):
   assert Calculator._insert_implicit_multiplication(tokens) == expected
+
+
+# Test _infix_to_postfix() ------------------------------
+
+@pytest.mark.parametrize("tokens, expected", [
+  (["1", "+", "2"],                     ["1", "2", "+"]),
+  (["1", "+", "2", "*", "3"],           ["1", "2", "3", "*", "+"]),
+  (["1", "*", "(", "2", "+", "3", ")"], ["1", "2", "3", "+", "*"]),
+  (["2", "^", "3", "^", "2"],           ["2", "3", "2", "^", "^"]),
+])
+def test__infix_to_postfix(tokens, expected):
+  assert Calculator._infix_to_postfix(tokens) == expected
+
+
+# Test _handle_close_parenthesis() ------------------------------
+
+def test__handle_close_parenthesis():
+  operator_stack = ["(", "+", "*"]
+  output_queue = ["1"]
+
+  Calculator._handle_close_parenthesis(operator_stack, output_queue)
+
+  assert operator_stack == []
+  assert output_queue == ["1", "*", "+"]
+
+
+# Test _handle_operator() ------------------------------
+
+def test__handle_operator():
+  operator_stack = ["*"]
+  output_queue = ["1", "2"]
+
+  Calculator._handle_operator("+", operator_stack, output_queue)
+
+  assert operator_stack == ["+"]
+  assert output_queue == ["1", "2", "*"]
+
+
+# Test _should_pop() ------------------------------
+
+@pytest.mark.parametrize("incoming, stack_top, expected", [
+  ("+", "*", True),
+  ("*", "+", False),
+  ("^", "^", False),
+  ("*", "^", True),
+  ("+", "^", True),
+])
+def test__should_pop(incoming, stack_top, expected):
+  assert Calculator._should_pop(incoming, stack_top) is expected
+
+
+# Test _evaluate_postfix() ------------------------------
+
+@pytest.mark.parametrize("postfix, expected", [
+  (["1", "2", "+"], "3"),
+  (["2", "3", "^"], "8"),
+  (["2", "3", "/"], "0.666666667"),
+  (["1", "2", "+", "3", "*"], "9"),
+  (["3", "1", "u-", "+"], "2"),
+])
+def test__evaluate_postfix(postfix, expected):
+  assert Calculator._evaluate_postfix(postfix) == expected
+
+
+# Test _binary_eval() ------------------------------
+
+@pytest.mark.parametrize("value1, value2, operator, expected", [
+  (2.0, 3.0, "+", 5.0),
+  (2.0, 3.0, "-", 1.0),
+  (2.0, 3.0, "*", 6.0),
+  (3.0, 6.0, "/", 2.0),
+  (2.0, 3.0, "^", 9.0),
+])
+def test__binary_eval_success(value1, value2, operator, expected):
+  assert Calculator._binary_eval(value1, value2, operator) == expected
+
+def test__binary_eval_zero_division():
+  with pytest.raises(ZeroDivisionError):
+    Calculator._binary_eval(0.0, 1.0, "/")
+
+@pytest.mark.parametrize("value1, value2, operator", [
+  (10000.0, 2.0,          "^"),   # triggers OverflowError
+  (1.0,     float("inf"), "+"),   # triggers non-finite result
+])
+def test__binary_eval_valueerror(value1, value2, operator):
+  with pytest.raises(ValueError, match="Numerical result out of range"):
+    Calculator._binary_eval(value1, value2, operator)
