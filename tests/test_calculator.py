@@ -18,6 +18,7 @@ from modules.calculator import Calculator
   ("4.5-6*7",    "-37.5"),
 ])
 def test_calculate_success(expression, expected):
+  """Test successful arithmetic expression evaluation."""
   assert Calculator.calculate(expression) == expected
 
 @pytest.mark.parametrize("invalid_expression", [
@@ -31,6 +32,7 @@ def test_calculate_success(expression, expected):
   ("10000^10000"),
 ])
 def test_calculate_valueerror(invalid_expression):
+  """Test that invalid expressions raise ValueError."""
   with pytest.raises(ValueError):
     Calculator.calculate(expression=invalid_expression)
 
@@ -47,6 +49,7 @@ def test_calculate_valueerror(invalid_expression):
   ),
 ])
 def test__tokenize(expression, expected):
+  """Test that an expression is split into individual tokens."""
   assert Calculator._tokenize(expression) == expected
 
 
@@ -64,6 +67,7 @@ def test__tokenize(expression, expected):
   (["1", "+", "-", "-", "1"], ["1", "+", "u-", "u-", "1"]),
 ])
 def test__normalize_unary_operators(tokens, expected):
+  """Test that unary operators are normalized correctly."""
   assert Calculator._normalize_unary_operators(tokens) == expected
 
 
@@ -76,6 +80,7 @@ def test__normalize_unary_operators(tokens, expected):
   (["(", "1", ")", "(", "1", ")"], ["(", "1", ")", "*", "(", "1", ")"]),
 ])
 def test__insert_implicit_multiplication(tokens, expected):
+  """Test that implicit multiplication operators are inserted."""
   assert Calculator._insert_implicit_multiplication(tokens) == expected
 
 
@@ -90,12 +95,14 @@ def test__insert_implicit_multiplication(tokens, expected):
   (["2", "^", "u-", "3"],               ["2", "3", "u-", "^"]),
 ])
 def test__infix_to_postfix(tokens, expected):
+  """Test that infix tokens are converted to postfix notation."""
   assert Calculator._infix_to_postfix(tokens) == expected
 
 
 # Test _handle_close_parenthesis() ------------------------------
 
 def test__handle_close_parenthesis():
+  """Test that operators are popped up to the opening parenthesis."""
   operator_stack = ["(", "+", "*"]
   output_queue = ["1"]
 
@@ -108,6 +115,7 @@ def test__handle_close_parenthesis():
 # Test _handle_operator() ------------------------------
 
 def test__handle_operator():
+  """Test that an operator is handled by precedence and associativity."""
   operator_stack = ["*"]
   output_queue = ["1", "2"]
 
@@ -127,6 +135,7 @@ def test__handle_operator():
   ("+", "^", True),
 ])
 def test__should_pop(incoming, stack_top, expected):
+  """Test whether the stack operator should be popped."""
   assert Calculator._should_pop(incoming, stack_top) is expected
 
 
@@ -142,6 +151,7 @@ def test__should_pop(incoming, stack_top, expected):
   (["2", "3", "/"],           "0.666666667"),
 ])
 def test__evaluate_postfix(postfix, expected):
+  """Test that postfix expressions are evaluated and formatted."""
   assert Calculator._evaluate_postfix(postfix) == expected
 
 
@@ -155,9 +165,11 @@ def test__evaluate_postfix(postfix, expected):
   (2.0, 3.0, "^", 9.0),
 ])
 def test__binary_eval_success(value1, value2, operator, expected):
+  """Test successful evaluation of binary arithmetic operations."""
   assert Calculator._binary_eval(value1, value2, operator) == expected
 
 def test__binary_eval_zero_division():
+  """Test that division by zero raises ZeroDivisionError."""
   with pytest.raises(ZeroDivisionError):
     Calculator._binary_eval(0.0, 1.0, "/")
 
@@ -166,5 +178,6 @@ def test__binary_eval_zero_division():
   (1.0,     float("inf"), "+"),   # triggers non-finite result
 ])
 def test__binary_eval_valueerror(value1, value2, operator):
+  """Test that numerical errors raise ValueError."""
   with pytest.raises(ValueError, match="Numerical result out of range"):
     Calculator._binary_eval(value1, value2, operator)
