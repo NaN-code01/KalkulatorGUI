@@ -42,3 +42,14 @@ def test_calculate_valueerror(invalid_expression):
 ])
 def test__tokenize(expression, expected):
   assert Calculator._tokenize(expression) == expected
+
+
+# Test _normalize_unary_operators() ------------------------------
+
+@pytest.mark.parametrize("tokens, expected", [
+  (["+", "1"], ["u+", "1"]),
+  (["-", "1"], ["u-", "1"]),
+  (["1", "+", "-", "-", "1"], ["1", "+", "u-", "u-", "1"]),
+])
+def test__normalize_unary_operators(tokens, expected):
+  assert Calculator._normalize_unary_operators(tokens) == expected
