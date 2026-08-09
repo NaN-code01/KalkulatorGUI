@@ -27,3 +27,18 @@ def test_calculate_success(expression, expected):
 def test_calculate_valueerror(invalid_expression):
   with pytest.raises(ValueError):
     Calculator.calculate(expression=invalid_expression)
+
+
+# Test _tokenize() ------------------------------
+
+@pytest.mark.parametrize("expression, expected", [
+  ("", []),
+  ("1+1", ["1", "+", "1"]),
+  ("1.1+1.1", ["1.1", "+", "1.1"]),
+  (
+    "-1(1.1*1)/-1.1^(1)", 
+    ["-", "1", "(", "1.1", "*", "1", ")", "/", "-", "1.1", "^", "(", "1", ")"]
+  ),
+])
+def test__tokenize(expression, expected):
+  assert Calculator._tokenize(expression) == expected
