@@ -6,10 +6,16 @@ from modules.calculator import Calculator
 # Test calculate() ------------------------------
 
 @pytest.mark.parametrize("expression, expected", [
-  ("1+2", "3"),
-  ("4.5-6*7", "-37.5"),
+  ("1+2",        "3"),
+  ("--5",        "5"),
+  ("-(-5)",      "5"),
+  ("-3+--4",     "1"),
+  ("(2)(3)",     "6"),
+  ("2(3+4)",     "14"),
+  ("2^3^2",      "512"),
   ("8(9^(1+2))", "5832"),
-  ("-3+--4", "1"),
+  ("1/-2",       "-0.5"),
+  ("4.5-6*7",    "-37.5"),
 ])
 def test_calculate_success(expression, expected):
   assert Calculator.calculate(expression) == expected
@@ -47,8 +53,14 @@ def test__tokenize(expression, expected):
 # Test _normalize_unary_operators() ------------------------------
 
 @pytest.mark.parametrize("tokens, expected", [
-  (["+", "1"], ["u+", "1"]),
-  (["-", "1"], ["u-", "1"]),
+  (["-", "1"],                ["u-", "1"]),
+  (["+", "1"],                ["u+", "1"]),
+  (["-", "-", "2"],           ["u-", "u-", "2"]),
+  (["1", "+", "-", "2"],      ["1", "+", "u-", "2"]),
+  (["1", "*", "-", "2"],      ["1", "*", "u-", "2"]),
+  (["(", "-", "2", ")"],      ["(", "u-", "2", ")"]),
+  (["1", "/", "-", "2"],      ["1", "/", "u-", "2"]),
+  (["1", "^", "-", "2"],      ["1", "^", "u-", "2"]),
   (["1", "+", "-", "-", "1"], ["1", "+", "u-", "u-", "1"]),
 ])
 def test__normalize_unary_operators(tokens, expected):
@@ -58,9 +70,9 @@ def test__normalize_unary_operators(tokens, expected):
 # Test _insert_implicit_multiplication() ------------------------------
 
 @pytest.mark.parametrize("tokens, expected", [
-  (["1", "1"], ["1", "*", "1"]),
-  (["1", "(", "1", ")"], ["1", "*", "(", "1", ")"]),
-  (["(", "1", ")", "1"], ["(", "1", ")", "*", "1"]),
+  (["1", "1"],                     ["1", "*", "1"]),
+  (["1", "(", "1", ")"],           ["1", "*", "(", "1", ")"]),
+  (["(", "1", ")", "1"],           ["(", "1", ")", "*", "1"]),
   (["(", "1", ")", "(", "1", ")"], ["(", "1", ")", "*", "(", "1", ")"]),
 ])
 def test__insert_implicit_multiplication(tokens, expected):
@@ -71,9 +83,11 @@ def test__insert_implicit_multiplication(tokens, expected):
 
 @pytest.mark.parametrize("tokens, expected", [
   (["1", "+", "2"],                     ["1", "2", "+"]),
+  (["u-", "2"],                         ["2", "u-"]),
   (["1", "+", "2", "*", "3"],           ["1", "2", "3", "*", "+"]),
   (["1", "*", "(", "2", "+", "3", ")"], ["1", "2", "3", "+", "*"]),
   (["2", "^", "3", "^", "2"],           ["2", "3", "2", "^", "^"]),
+  (["2", "^", "u-", "3"],               ["2", "3", "u-", "^"]),
 ])
 def test__infix_to_postfix(tokens, expected):
   assert Calculator._infix_to_postfix(tokens) == expected
@@ -119,11 +133,13 @@ def test__should_pop(incoming, stack_top, expected):
 # Test _evaluate_postfix() ------------------------------
 
 @pytest.mark.parametrize("postfix, expected", [
-  (["1", "2", "+"], "3"),
-  (["2", "3", "^"], "8"),
-  (["2", "3", "/"], "0.666666667"),
+  (["1", "2", "+"],           "3"),
+  (["2", "3", "^"],           "8"),
   (["1", "2", "+", "3", "*"], "9"),
-  (["3", "1", "u-", "+"], "2"),
+  (["3", "1", "u-", "+"],     "2"),
+  (["2.0", "2.0", "+"],       "4"),
+  (["10", "4", "/"],          "2.5"),
+  (["2", "3", "/"],           "0.666666667"),
 ])
 def test__evaluate_postfix(postfix, expected):
   assert Calculator._evaluate_postfix(postfix) == expected
