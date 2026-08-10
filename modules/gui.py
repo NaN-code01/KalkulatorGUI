@@ -79,6 +79,7 @@ class GUI(CT.CTk):
     self.configure(bg=self._current_theme["bg"])
     self.geometry(self._GEOMETRY)
     self.minsize(self._MIN_WIDTH, self._MIN_HEIGHT)
+    self.resizable(False, False)
 
 
   def _create_frames(self) -> None:
