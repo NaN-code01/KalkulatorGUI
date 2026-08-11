@@ -1,4 +1,5 @@
 import tkinter as Tk
+import sys
 
 import customtkinter as CT
 
@@ -41,8 +42,8 @@ class GUI(CT.CTk):
     self._TITLE: str = GuiConstants.TITLE
 
     # icon issue, TODO: fix the issue when packaging process
-    self._ICON_PATH_STR: str = GuiConstants.ICON_PATH_STR
-    self._ICON = Tk.PhotoImage(file=self._ICON_PATH_STR)
+    self._ICON_PATH_ICO: str = GuiConstants.ICON_PATH_ICO_STR
+    self._ICON_PATH_PNG: str = GuiConstants.ICON_PATH_PNG_STR
 
     self._THEME: dict[str, dict[str, str]] = GuiConstants.THEME
 
@@ -75,11 +76,18 @@ class GUI(CT.CTk):
   def _setup_window(self) -> None:
     """Configure the main window properties and appearance."""
     self.title(self._TITLE)
-    self.iconphoto(True, self._ICON)
     self.configure(bg=self._current_theme["bg"])
+
+    # geometry handle
     self.geometry(self._GEOMETRY)
     self.minsize(self._MIN_WIDTH, self._MIN_HEIGHT)
     self.resizable(False, False)
+
+    # icon handle
+    if sys.platform == "win32":
+      self.iconbitmap(self._ICON_PATH_ICO)
+    else:
+      self.iconphoto(True, Tk.PhotoImage(file=self._ICON_PATH_PNG))
 
 
   def _create_frames(self) -> None:
