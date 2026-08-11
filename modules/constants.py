@@ -18,7 +18,8 @@ class PathConstants:
   """Store filesystem paths used throughout the application."""
   ROOT_DIR: Path = Path(__file__).resolve().parent.parent
   ASSETS_DIR: Path = ROOT_DIR / "assets"
-  ICON_PATH: Path = ASSETS_DIR / "icon64.png"
+  ICON_PATH_ICO: Path = ASSETS_DIR / "icon.ico"
+  ICON_PATH_PNG: Path = ASSETS_DIR / "icon.png"
   THEME_PATH: Path = ASSETS_DIR / "theme.json"
 
 
@@ -37,7 +38,8 @@ class GuiConstants:
   """
 
   TITLE: str = "KalkulatorGUI"
-  ICON_PATH_STR: str = str(PathConstants.ICON_PATH)
+  ICON_PATH_ICO_STR: str = str(PathConstants.ICON_PATH_ICO)
+  ICON_PATH_PNG_STR: str = str(PathConstants.ICON_PATH_PNG)
 
   THEME: dict[str, dict[str, str]] = (
     Utility.validate_and_load_json(
